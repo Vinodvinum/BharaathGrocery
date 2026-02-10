@@ -1,0 +1,10 @@
+﻿node_modules/
+.env
+.env.local
+.next/
+build/
+dist/
+*.log
+.DS_Store
+.vscode/
+.idea/
