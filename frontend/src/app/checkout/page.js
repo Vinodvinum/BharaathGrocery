@@ -20,6 +20,8 @@ export default function CheckoutPage() {
   });
   const router = useRouter();
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+  const formatINR = (value) =>
+    new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(value || 0);
 
   useEffect(() => {
     const load = async () => {
@@ -101,7 +103,7 @@ export default function CheckoutPage() {
             <input type="text" placeholder="State" required value={address.state} onChange={(e) => setAddress((v) => ({ ...v, state: e.target.value }))} className="w-full p-2 border rounded" />
             <input type="text" placeholder="Postal Code" required value={address.pincode} onChange={(e) => setAddress((v) => ({ ...v, pincode: e.target.value }))} className="w-full p-2 border rounded" />
             <button type="submit" disabled={placing} className="w-full bg-green-600 text-white py-3 rounded font-bold hover:bg-green-700 mt-4 disabled:bg-gray-400">
-              {placing ? 'Placing order...' : `Place Order ($${total.toFixed(2)})`}
+              {placing ? 'Placing order...' : `Place Order (${formatINR(total)})`}
             </button>
           </form>
         </div>
@@ -112,12 +114,12 @@ export default function CheckoutPage() {
             {cart.map((item) => (
               <div key={item.product} className="flex justify-between border-b py-2">
                 <span>{item.name} x {item.quantity}</span>
-                <span>${(item.price * item.quantity).toFixed(2)}</span>
+                <span>{formatINR(item.price * item.quantity)}</span>
               </div>
             ))}
             <div className="flex justify-between font-bold text-lg mt-4 pt-2 border-t border-gray-300">
               <span>Total</span>
-              <span>${total.toFixed(2)}</span>
+              <span>{formatINR(total)}</span>
             </div>
           </div>
         </div>

@@ -1,13 +1,13 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
 
-const FALLBACK_IMAGE = "/file.svg";
+const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1583258292688-d0213dc5a3a8?w=240&h=240&fit=crop";
 
 function money(value) {
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value || 0);
+  return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(value || 0);
 }
 
 function resolveImage(images) {
@@ -19,7 +19,7 @@ function resolveImage(images) {
 
 function formatDate(input) {
   if (!input) return "-";
-  return new Date(input).toLocaleString();
+  return new Date(input).toLocaleString("en-IN");
 }
 
 export default function OrdersPage() {
@@ -108,7 +108,7 @@ export default function OrdersPage() {
                     />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{item.name || item.product?.name || "Product"}</p>
-                      <p className="text-xs text-slate-500">Qty: {item.quantity} � {money(item.price)}</p>
+                      <p className="text-xs text-slate-500">Qty: {item.quantity} • {money(item.price)}</p>
                     </div>
                     <p className="text-sm font-semibold">{money((item.price || 0) * (item.quantity || 0))}</p>
                   </div>

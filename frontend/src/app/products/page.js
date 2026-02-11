@@ -4,7 +4,16 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import axios from "axios";
 
-const FALLBACK_IMAGE = "/file.svg";
+const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1542838132-92c53300491e?w=500&h=500&fit=crop";
+const INDIAN_SUBCATEGORIES = [
+  { label: "All", key: "all", keywords: [] },
+  { label: "Rice", key: "rice", keywords: ["rice", "basmati", "brown rice"] },
+  { label: "Dal & Pulses", key: "dal_pulses", keywords: ["dal", "lentil", "pulse", "toor", "moong", "chana"] },
+  { label: "Atta & Flour", key: "atta_flour", keywords: ["atta", "flour", "wheat"] },
+  { label: "Oil & Ghee", key: "oil_ghee", keywords: ["oil", "ghee", "mustard oil", "sunflower"] },
+  { label: "Spices", key: "spices", keywords: ["masala", "spice", "turmeric", "chilli", "coriander"] },
+  { label: "Tea & Beverages", key: "tea_beverages", keywords: ["tea", "coffee", "beverage", "juice"] }
+];
 
 const SAMPLE_PRODUCTS = [
   {
@@ -46,11 +55,19 @@ export default function ProductsPage() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedSubcategory, setSelectedSubcategory] = useState("all");
+
+  const formatINR = (value) =>
+    new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(value || 0);
 
   useEffect(() => {
     const categoryFromUrl = searchParams.get("category");
+    const subFromUrl = searchParams.get("sub");
     if (categoryFromUrl) {
       setSelectedCategory(categoryFromUrl);
+    }
+    if (subFromUrl) {
+      setSelectedSubcategory(subFromUrl);
     }
   }, [searchParams]);
 
@@ -118,9 +135,16 @@ export default function ProductsPage() {
 
   const categoryList = useMemo(() => ["All", ...categories], [categories]);
 
-  const filteredProducts = selectedCategory === "All"
-    ? products
-    : products.filter((product) => resolveCategoryName(product) === selectedCategory);
+  const filteredProducts = products.filter((product) => {
+    const categoryMatch = selectedCategory === "All" || resolveCategoryName(product) === selectedCategory;
+    if (!categoryMatch) return false;
+
+    const selectedSub = INDIAN_SUBCATEGORIES.find((entry) => entry.key === selectedSubcategory);
+    if (!selectedSub || selectedSub.key === "all") return true;
+
+    const haystack = `${product.name || ""} ${product.description || ""}`.toLowerCase();
+    return selectedSub.keywords.some((keyword) => haystack.includes(keyword));
+  });
 
   if (loading) return <div className="p-8 text-center">Loading products...</div>;
 
@@ -146,6 +170,19 @@ export default function ProductsPage() {
           <h1 className="text-2xl md:text-3xl font-extrabold mb-5">
             {selectedCategory === "All" ? "All Products" : selectedCategory}
           </h1>
+          <div className="flex items-center gap-2 overflow-x-auto pb-3 mb-4">
+            {INDIAN_SUBCATEGORIES.map((sub) => (
+              <button
+                key={sub.key}
+                onClick={() => setSelectedSubcategory(sub.key)}
+                className={`px-3 py-1.5 text-xs md:text-sm rounded-full whitespace-nowrap ${
+                  selectedSubcategory === sub.key ? "bg-amber-400 text-slate-900 font-semibold" : "bg-slate-200 text-slate-700"
+                }`}
+              >
+                {sub.label}
+              </button>
+            ))}
+          </div>
 
           {filteredProducts.length === 0 ? (
             <div className="bg-white rounded-xl shadow-sm p-8 text-center text-slate-600">
@@ -170,7 +207,7 @@ export default function ProductsPage() {
                     <h3 className="font-bold text-sm md:text-base mb-1 line-clamp-2">{product.name}</h3>
                     <p className="text-slate-600 text-xs md:text-sm mb-3 line-clamp-2">{product.description}</p>
                     <div className="mt-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                      <span className="text-lg md:text-xl font-bold text-emerald-700">${product.price}</span>
+                      <span className="text-lg md:text-xl font-bold text-emerald-700">{formatINR(product.price)}</span>
                       <button
                         onClick={() => addToCart(product)}
                         className="bg-amber-400 text-slate-900 px-3 py-2 rounded-lg text-sm font-semibold hover:bg-amber-300"

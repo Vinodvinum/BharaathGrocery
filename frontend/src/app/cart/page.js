@@ -4,16 +4,21 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import axios from "axios";
 
+const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1583258292688-d0213dc5a3a8?w=240&h=240&fit=crop";
+
 function resolveImage(images) {
-  if (!Array.isArray(images) || images.length === 0) return '';
+  if (!Array.isArray(images) || images.length === 0) return FALLBACK_IMAGE;
   const first = images[0];
-  return typeof first === 'string' ? first : first?.url || '';
+  const src = typeof first === 'string' ? first : first?.url || '';
+  return src || FALLBACK_IMAGE;
 }
 
 export default function CartPage() {
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+  const formatINR = (value) =>
+    new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(value || 0);
 
   const loadCart = async () => {
     const token = localStorage.getItem('token');
@@ -123,12 +128,19 @@ export default function CartPage() {
             <div key={item._cartItemId || item._id} className="flex items-center gap-4 bg-white p-4 rounded-lg shadow-sm mb-4">
               <div className="w-20 h-20 bg-gray-100 rounded overflow-hidden flex-shrink-0">
                 {resolveImage(item.images) && (
-                  <img src={resolveImage(item.images)} alt={item.name} className="w-full h-full object-cover" />
+                  <img
+                    src={resolveImage(item.images)}
+                    alt={item.name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = FALLBACK_IMAGE;
+                    }}
+                  />
                 )}
               </div>
               <div className="flex-grow">
                 <h3 className="font-bold">{item.name}</h3>
-                <p className="text-gray-600">${item.price}</p>
+                <p className="text-gray-600">{formatINR(item.price)}</p>
               </div>
               <div className="flex items-center gap-2">
                 <button onClick={() => updateQty(item._id, -1)} className="px-2 py-1 bg-gray-200 rounded">-</button>
@@ -141,9 +153,9 @@ export default function CartPage() {
         </div>
         <div className="bg-white p-6 rounded-lg shadow-sm h-fit">
           <h3 className="text-xl font-bold mb-4">Order Summary</h3>
-          <div className="flex justify-between mb-2"><span>Subtotal</span><span>${total.toFixed(2)}</span></div>
+          <div className="flex justify-between mb-2"><span>Subtotal</span><span>{formatINR(total)}</span></div>
           <div className="border-t pt-4 mt-4">
-            <div className="flex justify-between font-bold text-lg mb-6"><span>Total</span><span>${total.toFixed(2)}</span></div>
+            <div className="flex justify-between font-bold text-lg mb-6"><span>Total</span><span>{formatINR(total)}</span></div>
             <Link href="/checkout"><button className="w-full bg-green-600 text-white py-3 rounded font-bold hover:bg-green-700">Proceed to Checkout</button></Link>
           </div>
         </div>

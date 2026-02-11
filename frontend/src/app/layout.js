@@ -13,6 +13,13 @@ const CATEGORY_FALLBACK = [
   { _id: "bakery", name: "Bakery" },
   { _id: "beverages", name: "Beverages" }
 ];
+const QUICK_SUBCATEGORY_LINKS = [
+  { key: "rice", label: "Rice", href: "/products?sub=rice" },
+  { key: "dal_pulses", label: "Dal & Pulses", href: "/products?sub=dal_pulses" },
+  { key: "atta_flour", label: "Atta & Flour", href: "/products?sub=atta_flour" },
+  { key: "oil_ghee", label: "Oil & Ghee", href: "/products?sub=oil_ghee" },
+  { key: "tea_beverages", label: "Tea & Beverages", href: "/products?sub=tea_beverages" }
+];
 
 export default function RootLayout({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -24,6 +31,8 @@ export default function RootLayout({ children }) {
   const pathname = usePathname();
   const router = useRouter();
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+  const isAdmin = user?.role === "admin";
+  const isAdminRoute = pathname?.startsWith("/admin");
 
   useEffect(() => {
     const syncStateFromStorage = async () => {
@@ -111,21 +120,23 @@ export default function RootLayout({ children }) {
                   =
                 </button>
                 <Link href="/" className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded bg-amber-400 text-slate-900 font-black grid place-items-center">H</div>
+                  <div className="w-8 h-8 rounded bg-amber-400 text-slate-900 font-black grid place-items-center">B</div>
                   <div>
-                    <p className="text-lg font-extrabold tracking-wide">HelpingHands</p>
-                    <p className="text-[10px] uppercase text-amber-300 tracking-[0.2em]">Fresh Grocery</p>
+                    <p className="text-lg font-extrabold tracking-wide">Bharat Basket</p>
+                    <p className="text-[10px] uppercase text-amber-300 tracking-[0.2em]">Indian Grocery</p>
                   </div>
                 </Link>
               </div>
 
               <nav className="hidden md:flex items-center gap-6 text-sm">
                 <Link href="/" className={pathname === "/" ? "text-amber-300 font-semibold" : "text-slate-100 hover:text-amber-200"}>Home</Link>
-                <Link href="/products" className={pathname?.startsWith("/products") ? "text-amber-300 font-semibold" : "text-slate-100 hover:text-amber-200"}>Products</Link>
-                {isLoggedIn && user?.role !== "admin" && (
+                {!isAdmin && (
+                  <Link href="/products" className={pathname?.startsWith("/products") ? "text-amber-300 font-semibold" : "text-slate-100 hover:text-amber-200"}>Products</Link>
+                )}
+                {isLoggedIn && !isAdmin && (
                   <Link href="/orders" className={pathname?.startsWith("/orders") ? "text-amber-300 font-semibold" : "text-slate-100 hover:text-amber-200"}>My Orders</Link>
                 )}
-                {user?.role === "admin" && (
+                {isAdmin && (
                   <Link href="/admin" className={pathname?.startsWith("/admin") ? "text-amber-300 font-semibold" : "text-slate-100 hover:text-amber-200"}>Admin</Link>
                 )}
               </nav>
@@ -134,15 +145,16 @@ export default function RootLayout({ children }) {
                 <p className="hidden sm:block text-xs md:text-sm text-slate-200">
                   {isLoggedIn && user?.name ? <>Hello, <span className="font-semibold">{user.name.split(" ")[0]}</span></> : "Hello, Guest"}
                 </p>
-                <Link href="/cart" className="relative inline-flex items-center gap-1 text-slate-100 hover:text-amber-200">
-                  <span className="text-xl" aria-hidden="true">??</span>
-                  <span className="hidden md:inline text-sm">Cart</span>
-                  {cartCount > 0 && (
-                    <span className="absolute -top-1 -right-2 bg-rose-500 text-white text-[10px] rounded-full min-w-5 h-5 px-1 grid place-items-center font-semibold">
-                      {cartCount}
-                    </span>
-                  )}
-                </Link>
+                {!isAdmin && (
+                  <Link href="/cart" className="relative inline-flex items-center gap-1 text-slate-100 hover:text-amber-200">
+                    <span className="hidden md:inline text-sm">Cart</span>
+                    {cartCount > 0 && (
+                      <span className="absolute -top-1 -right-2 bg-rose-500 text-white text-[10px] rounded-full min-w-5 h-5 px-1 grid place-items-center font-semibold">
+                        {cartCount}
+                      </span>
+                    )}
+                  </Link>
+                )}
                 {isLoggedIn ? (
                   <button onClick={handleLogout} className="text-xs md:text-sm border border-slate-600 rounded px-3 py-1.5 hover:border-rose-400 hover:text-rose-300">Logout</button>
                 ) : (
@@ -152,7 +164,8 @@ export default function RootLayout({ children }) {
             </div>
           </div>
 
-          <div className="bg-white border-b border-slate-200">
+          {!isAdmin && !isAdminRoute && (
+            <div className="bg-white border-b border-slate-200">
             <div className="mx-auto max-w-7xl px-3 md:px-4 py-2 overflow-x-auto">
               <div className="flex items-center gap-2 min-w-max">
                 {categories.map((cat) => {
@@ -171,19 +184,31 @@ export default function RootLayout({ children }) {
                     </Link>
                   );
                 })}
+                {QUICK_SUBCATEGORY_LINKS.map((link) => (
+                  <Link
+                    key={link.key}
+                    href={link.href}
+                    className="px-3 py-1.5 text-xs md:text-sm rounded-full bg-amber-50 text-amber-800 hover:bg-amber-100"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
               </div>
             </div>
-          </div>
+            </div>
+          )}
 
           {mobileOpen && (
             <div className="md:hidden bg-white border-b border-slate-200">
               <div className="px-4 py-3 flex flex-col gap-3 text-sm">
                 <Link href="/" className={pathname === "/" ? "font-semibold text-amber-700" : "text-slate-700"} onClick={() => setMobileOpen(false)}>Home</Link>
-                <Link href="/products" className={pathname?.startsWith("/products") ? "font-semibold text-amber-700" : "text-slate-700"} onClick={() => setMobileOpen(false)}>Products</Link>
-                {isLoggedIn && user?.role !== "admin" && (
+                {!isAdmin && (
+                  <Link href="/products" className={pathname?.startsWith("/products") ? "font-semibold text-amber-700" : "text-slate-700"} onClick={() => setMobileOpen(false)}>Products</Link>
+                )}
+                {isLoggedIn && !isAdmin && (
                   <Link href="/orders" className={pathname?.startsWith("/orders") ? "font-semibold text-amber-700" : "text-slate-700"} onClick={() => setMobileOpen(false)}>My Orders</Link>
                 )}
-                {user?.role === "admin" && (
+                {isAdmin && (
                   <Link href="/admin" className={pathname?.startsWith("/admin") ? "font-semibold text-amber-700" : "text-slate-700"} onClick={() => setMobileOpen(false)}>Admin</Link>
                 )}
               </div>
@@ -195,7 +220,7 @@ export default function RootLayout({ children }) {
 
         <footer className="bg-slate-900 text-slate-200 py-6 mt-auto">
           <div className="mx-auto max-w-7xl px-4 text-center text-sm">
-            <p>&copy; 2026 HelpingHands Grocery. All rights reserved.</p>
+            <p>&copy; 2026 Bharat Basket. All rights reserved.</p>
           </div>
         </footer>
       </body>
