@@ -9,6 +9,7 @@ export default function RootLayout({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [cartCount, setCartCount] = useState(0);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -72,9 +73,17 @@ export default function RootLayout({ children }) {
               <h1 className="text-2xl font-bold text-green-600">Grocery Shop</h1>
             </Link>
             <nav className="hidden md:flex items-center gap-8">
-              <Link href="/" className="text-gray-600 hover:text-green-600 font-medium">Home</Link>
-              <Link href="/products" className="text-gray-600 hover:text-green-600 font-medium">Products</Link>
+              <Link href="/" className={`text-gray-600 hover:text-green-600 font-medium ${pathname === '/' ? 'text-green-700' : ''}`}>Home</Link>
+              <Link href="/products" className={`text-gray-600 hover:text-green-600 font-medium ${pathname?.startsWith('/products') ? 'text-green-700' : ''}`}>Products</Link>
+              <Link href="/blog" className={`text-gray-600 hover:text-green-600 font-medium ${pathname?.startsWith('/blog') ? 'text-green-700' : ''}`}>Blog</Link>
             </nav>
+            <button
+              className="md:hidden text-2xl text-gray-700"
+              aria-label="Toggle navigation"
+              onClick={() => setMobileOpen(v => !v)}
+            >
+              ☰
+            </button>
             <div className="flex items-center gap-6">
               <div className="text-gray-700 hidden sm:block">
                 {isLoggedIn && user?.name ? (
@@ -103,6 +112,15 @@ export default function RootLayout({ children }) {
               )}
             </div>
           </div>
+          {mobileOpen && (
+            <div className="md:hidden bg-white border-t">
+              <div className="container mx-auto px-4 py-3 flex flex-col gap-3">
+                <Link href="/" className={`text-gray-700 ${pathname === '/' ? 'text-green-700 font-semibold' : ''}`} onClick={() => setMobileOpen(false)}>Home</Link>
+                <Link href="/products" className={`text-gray-700 ${pathname?.startsWith('/products') ? 'text-green-700 font-semibold' : ''}`} onClick={() => setMobileOpen(false)}>Products</Link>
+                <Link href="/blog" className={`text-gray-700 ${pathname?.startsWith('/blog') ? 'text-green-700 font-semibold' : ''}`} onClick={() => setMobileOpen(false)}>Blog</Link>
+              </div>
+            </div>
+          )}
         </header>
         <main className="flex-grow">
           {children}
