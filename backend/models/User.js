@@ -20,16 +20,20 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please provide a password'],
     minlength: [6, 'Password must be at least 6 characters'],
-    select: false // Don't return password in queries by default
+    select: false
   },
   phone: {
     type: String,
-    match: [/^[6-9]\d{9}$/, 'Please provide a valid Indian phone number']
+    match: [/^[0-9]{10}$/, 'Please provide a valid 10-digit phone number']
   },
   role: {
     type: String,
     enum: ['customer', 'admin'],
     default: 'customer'
+  },
+  isBlocked: {
+    type: Boolean,
+    default: false
   },
   avatar: {
     type: String,
@@ -59,7 +63,7 @@ const userSchema = new mongoose.Schema({
     pincode: {
       type: String,
       required: true,
-      match: [/^d{6}$/, 'Please provide a valid 6-digit pincode']
+      match: [/^\d{6}$/, 'Please provide a valid 6-digit pincode']
     },
     isDefault: {
       type: Boolean,
@@ -74,7 +78,6 @@ const userSchema = new mongoose.Schema({
   }
 });
 
-// Hash password before saving
 userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) {
     return next();
@@ -84,9 +87,8 @@ userSchema.pre('save', async function(next) {
   next();
 });
 
-// Compare password method
 userSchema.methods.comparePassword = async function(enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
+  return bcrypt.compare(enteredPassword, this.password);
 };
 
 module.exports = mongoose.model('User', userSchema);

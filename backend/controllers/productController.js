@@ -1,36 +1,42 @@
 const Product = require('../models/Product');
+const Category = require('../models/Category');
 
-// @desc    Get all products with filters
-// @route   GET /api/products
-// @access  Public
 exports.getProducts = async (req, res) => {
   try {
-    const { search, category, subcategory, minPrice, maxPrice, sort, page = 1, limit = 12 } = req.query;
+    const {
+      search,
+      category,
+      minPrice,
+      maxPrice,
+      sort,
+      page = 1,
+      limit = 12,
+      includeInactive = 'false'
+    } = req.query;
 
-    // Build query
-    let query = { isActive: true };
+    const query = {};
 
-    // Search
+    if (includeInactive !== 'true') {
+      query.isActive = true;
+    }
+
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } },
-        { tags: { $in: [new RegExp(search, 'i')] } }
+        { description: { $regex: search, $options: 'i' } }
       ];
     }
 
-    // Category filter
-    if (category) query.category = category;
-    if (subcategory) query.subcategory = subcategory;
+    if (category) {
+      query.category = category;
+    }
 
-    // Price filter
     if (minPrice || maxPrice) {
       query.price = {};
       if (minPrice) query.price.$gte = Number(minPrice);
       if (maxPrice) query.price.$lte = Number(maxPrice);
     }
 
-    // Sort options
     let sortOption = {};
     switch (sort) {
       case 'price-low':
@@ -39,24 +45,20 @@ exports.getProducts = async (req, res) => {
       case 'price-high':
         sortOption = { price: -1 };
         break;
-      case 'rating':
-        sortOption = { rating: -1 };
-        break;
       case 'newest':
         sortOption = { createdAt: -1 };
         break;
       default:
-        sortOption = { isFeatured: -1, createdAt: -1 };
+        sortOption = { featured: -1, createdAt: -1 };
     }
 
-    // Pagination
-    const skip = (page - 1) * limit;
+    const skip = (Number(page) - 1) * Number(limit);
 
     const products = await Product.find(query)
+      .populate('category', 'name')
       .sort(sortOption)
       .limit(Number(limit))
-      .skip(skip)
-      .select('-reviews');
+      .skip(skip);
 
     const total = await Product.countDocuments(query);
 
@@ -65,7 +67,7 @@ exports.getProducts = async (req, res) => {
       count: products.length,
       total,
       page: Number(page),
-      pages: Math.ceil(total / limit),
+      pages: Math.ceil(total / Number(limit)),
       products
     });
   } catch (error) {
@@ -73,13 +75,9 @@ exports.getProducts = async (req, res) => {
   }
 };
 
-// @desc    Get single product by ID
-// @route   GET /api/products/:id
-// @access  Public
 exports.getProductById = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id)
-      .populate('reviews.user', 'name avatar');
+    const product = await Product.findById(req.params.id).populate('category', 'name');
 
     if (!product) {
       return res.status(404).json({ success: false, message: 'Product not found' });
@@ -91,32 +89,39 @@ exports.getProductById = async (req, res) => {
   }
 };
 
-// @desc    Create new product (Admin only)
-// @route   POST /api/products
-// @access  Private/Admin
 exports.createProduct = async (req, res) => {
   try {
+    const category = await Category.findById(req.body.category);
+    if (!category) {
+      return res.status(400).json({ success: false, message: 'Invalid category' });
+    }
+
     const product = await Product.create({
       ...req.body,
       createdBy: req.user._id
     });
 
-    res.status(201).json({ success: true, product });
+    const populated = await Product.findById(product._id).populate('category', 'name');
+    res.status(201).json({ success: true, product: populated });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
 };
 
-// @desc    Update product (Admin only)
-// @route   PUT /api/products/:id
-// @access  Private/Admin
 exports.updateProduct = async (req, res) => {
   try {
+    if (req.body.category) {
+      const category = await Category.findById(req.body.category);
+      if (!category) {
+        return res.status(400).json({ success: false, message: 'Invalid category' });
+      }
+    }
+
     const product = await Product.findByIdAndUpdate(
       req.params.id,
       req.body,
       { new: true, runValidators: true }
-    );
+    ).populate('category', 'name');
 
     if (!product) {
       return res.status(404).json({ success: false, message: 'Product not found' });
@@ -128,9 +133,6 @@ exports.updateProduct = async (req, res) => {
   }
 };
 
-// @desc    Delete product (Admin only)
-// @route   DELETE /api/products/:id
-// @access  Private/Admin
 exports.deleteProduct = async (req, res) => {
   try {
     const product = await Product.findByIdAndDelete(req.params.id);

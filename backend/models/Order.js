@@ -6,14 +6,10 @@ const orderSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
-  orderItems: [{
+  items: [{
     product: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Product',
-      required: true
-    },
-    name: {
-      type: String,
       required: true
     },
     quantity: {
@@ -21,79 +17,39 @@ const orderSchema = new mongoose.Schema({
       required: true,
       min: [1, 'Quantity must be at least 1']
     },
-    image: String,
     price: {
       type: Number,
+      required: true,
+      min: [0, 'Price cannot be negative']
+    },
+    name: {
+      type: String,
       required: true
     }
   }],
-  shippingAddress: {
-    fullName: {
-      type: String,
-      required: true
-    },
-    phone: {
-      type: String,
-      required: true
-    },
-    addressLine1: {
-      type: String,
-      required: true
-    },
-    addressLine2: String,
-    city: {
-      type: String,
-      required: true
-    },
-    state: {
-      type: String,
-      required: true
-    },
-    pincode: {
-      type: String,
-      required: true
-    }
-  },
-  paymentInfo: {
-    method: {
-      type: String,
-      enum: ['razorpay', 'cod', 'wallet'],
-      required: true
-    },
-    razorpayOrderId: String,
-    razorpayPaymentId: String,
-    razorpaySignature: String,
-    status: {
-      type: String,
-      enum: ['pending', 'completed', 'failed', 'refunded'],
-      default: 'pending'
-    },
-    paidAt: Date
-  },
-  itemsPrice: {
+  totalAmount: {
     type: Number,
     required: true,
-    default: 0
+    min: [0, 'Total cannot be negative']
   },
-  shippingPrice: {
-    type: Number,
-    required: true,
-    default: 0
-  },
-  taxPrice: {
-    type: Number,
-    required: true,
-    default: 0
-  },
-  totalPrice: {
-    type: Number,
-    required: true,
-    default: 0
-  },
-  orderStatus: {
+  paymentStatus: {
     type: String,
-    enum: ['processing', 'confirmed', 'shipped', 'delivered', 'cancelled'],
-    default: 'processing'
+    enum: ['pending', 'paid', 'failed', 'refunded'],
+    default: 'pending'
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'],
+    default: 'pending'
+  },
+  shippingAddress: {
+    fullName: String,
+    phone: String,
+    addressLine1: String,
+    addressLine2: String,
+    city: String,
+    state: String,
+    pincode: String
   },
   statusHistory: [{
     status: String,
@@ -103,18 +59,18 @@ const orderSchema = new mongoose.Schema({
     },
     comment: String
   }],
-  deliveredAt: Date,
-  trackingNumber: String,
-  courierPartner: String,
   createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
     type: Date,
     default: Date.now
   }
 });
 
-// Calculate total before saving
 orderSchema.pre('save', function(next) {
-  this.totalPrice = this.itemsPrice + this.shippingPrice + this.taxPrice;
+  this.updatedAt = Date.now();
   next();
 });
 

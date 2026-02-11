@@ -19,18 +19,18 @@ export default function LoginPage() {
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-      const { data } = await axios.post(`${apiUrl}/api/auth/login`, {
-        email,
-        password,
-      });
+      const { data } = await axios.post(`${apiUrl}/api/auth/login`, { email, password });
 
       if (data.success) {
         localStorage.setItem('token', data.token);
-        // Optionally store user info if needed later
         localStorage.setItem('user', JSON.stringify(data.user));
-        // Notify layout/header
         window.dispatchEvent(new Event('storage'));
-        router.push('/products');
+
+        if (data.user?.role === 'admin') {
+          router.push('/admin');
+        } else {
+          router.push('/orders');
+        }
       } else {
         setError(data.message || 'Login failed. Please try again.');
       }
@@ -47,9 +47,7 @@ export default function LoginPage() {
         <h2 className="text-2xl font-bold text-center text-gray-900">Login to your account</h2>
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
-            <label htmlFor="email" className="text-sm font-medium text-gray-700 block">
-              Email address
-            </label>
+            <label htmlFor="email" className="text-sm font-medium text-gray-700 block">Email address</label>
             <input
               id="email"
               name="email"
@@ -58,13 +56,11 @@ export default function LoginPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
             />
           </div>
           <div>
-            <label htmlFor="password" className="text-sm font-medium text-gray-700 block">
-              Password
-            </label>
+            <label htmlFor="password" className="text-sm font-medium text-gray-700 block">Password</label>
             <input
               id="password"
               name="password"
@@ -73,25 +69,20 @@ export default function LoginPage() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
             />
           </div>
           {error && <p className="text-sm text-red-600">{error}</p>}
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-gray-400"
-            >
-              {loading ? 'Signing in...' : 'Sign in'}
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-2 px-4 rounded-md text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:bg-gray-400"
+          >
+            {loading ? 'Signing in...' : 'Sign in'}
+          </button>
         </form>
         <p className="text-sm text-center text-gray-600">
-          Not a member?{' '}
-          <Link href="/register" className="font-medium text-green-600 hover:text-green-500">
-            Sign up now
-          </Link>
+          Not a member? <Link href="/register" className="font-medium text-green-600 hover:text-green-500">Sign up now</Link>
         </p>
       </div>
     </div>
