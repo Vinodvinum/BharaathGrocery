@@ -18,6 +18,8 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/products', require('./routes/productRoutes'));
+app.use('/api/users', require('./routes/userRoutes'));
+app.use('/api/orders', require('./routes/orderRoutes'));
 
 // Health check route
 app.get('/api/health', (req, res) => {
@@ -54,4 +56,8 @@ app.listen(PORT, () => {
   console.log(`   GET    /api/auth/me`);
   console.log(`   GET    /api/products`);
   console.log(`   GET    /api/products/:id`);
+  console.log(`   GET    /api/users   (admin)`);
+  console.log(`   PUT    /api/users/:id   (admin)`);
+  console.log(`   GET    /api/orders   (admin)`);
+  console.log(`   PUT    /api/orders/:id   (admin)`);
 });

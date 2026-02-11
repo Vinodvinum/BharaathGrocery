@@ -7,14 +7,38 @@ import { usePathname, useRouter } from "next/navigation";
 
 export default function RootLayout({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
   const [cartCount, setCartCount] = useState(0);
   const pathname = usePathname();
   const router = useRouter();
 
   useEffect(() => {
-    const syncStateFromStorage = () => {
+    const syncStateFromStorage = async () => {
       const token = localStorage.getItem('token');
       setIsLoggedIn(!!token);
+
+      // Load user from storage or fetch if only token exists
+      let storedUser = null;
+      try {
+        storedUser = JSON.parse(localStorage.getItem('user') || 'null');
+      } catch {}
+
+      if (!storedUser && token) {
+        try {
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+          const res = await fetch(`${apiUrl}/api/auth/me`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await res.json();
+          if (data?.success && data.user) {
+            storedUser = data.user;
+            localStorage.setItem('user', JSON.stringify(storedUser));
+          }
+        } catch (e) {
+          // silently fail; user stays null
+        }
+      }
+      setUser(storedUser);
       
       const cart = JSON.parse(localStorage.getItem('cart') || '[]');
       const count = cart.reduce((acc, item) => acc + item.qty, 0);
@@ -31,8 +55,10 @@ export default function RootLayout({ children }) {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     localStorage.removeItem('cart'); // Also clear cart on logout
     setIsLoggedIn(false);
+    setUser(null);
     window.dispatchEvent(new Event('storage')); // Notify other tabs/components
     router.push('/login');
   };
@@ -50,6 +76,16 @@ export default function RootLayout({ children }) {
               <Link href="/products" className="text-gray-600 hover:text-green-600 font-medium">Products</Link>
             </nav>
             <div className="flex items-center gap-6">
+              <div className="text-gray-700 hidden sm:block">
+                {isLoggedIn && user?.name ? (
+                  <span>Hello, <span className="font-semibold">{user.name.split(' ')[0]}</span></span>
+                ) : (
+                  <span>Hello, Guest</span>
+                )}
+              </div>
+              {user?.role === 'admin' && (
+                <Link href="/admin" className="text-gray-600 hover:text-green-600 font-medium">Admin</Link>
+              )}
               <Link href="/cart" className="relative text-gray-600 hover:text-green-600">
                 <span className="text-2xl">🛒</span>
                 {cartCount > 0 && (
