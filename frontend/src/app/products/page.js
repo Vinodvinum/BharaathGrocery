@@ -61,15 +61,22 @@ export default function ProductsPage() {
     new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(value || 0);
 
   useEffect(() => {
-    const categoryFromUrl = searchParams.get("category");
-    const subFromUrl = searchParams.get("sub");
-    if (categoryFromUrl) {
-      setSelectedCategory(categoryFromUrl);
-    }
-    if (subFromUrl) {
-      setSelectedSubcategory(subFromUrl);
-    }
-  }, [searchParams]);
+  const categoryFromUrl = searchParams.get("category");
+  const subFromUrl = searchParams.get("sub");
+
+  // 🔥 FIX FOR "All"
+  if (categoryFromUrl) {
+    setSelectedCategory(categoryFromUrl);
+  } else {
+    setSelectedCategory("All");
+  }
+
+  if (subFromUrl) {
+    setSelectedSubcategory(subFromUrl);
+  } else {
+    setSelectedSubcategory("all");
+  }
+}, [searchParams]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -151,7 +158,7 @@ export default function ProductsPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 md:py-8">
       <div className="grid grid-cols-1 md:grid-cols-[230px_1fr] gap-6 md:gap-8">
-        <aside className="bg-white rounded-xl shadow-sm p-4 h-fit">
+        <aside className="hidden md:block bg-white rounded-xl shadow-sm p-4 h-fit sticky top-24 self-start">
           <h2 className="text-lg font-bold mb-3">Shop by Category</h2>
           <div className="flex md:flex-col gap-2 overflow-x-auto md:overflow-visible pb-2 md:pb-0">
             {categoryList.map((category) => (

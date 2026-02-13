@@ -14,11 +14,10 @@ const CATEGORY_FALLBACK = [
   { _id: "beverages", name: "Beverages" }
 ];
 const QUICK_SUBCATEGORY_LINKS = [
-  { key: "rice", label: "Rice", href: "/products?sub=rice" },
-  { key: "dal_pulses", label: "Dal & Pulses", href: "/products?sub=dal_pulses" },
+  /*{ key: "dal_pulses", label: "Dal & Pulses", href: "/products?sub=dal_pulses" },
   { key: "atta_flour", label: "Atta & Flour", href: "/products?sub=atta_flour" },
   { key: "oil_ghee", label: "Oil & Ghee", href: "/products?sub=oil_ghee" },
-  { key: "tea_beverages", label: "Tea & Beverages", href: "/products?sub=tea_beverages" }
+  { key: "tea_beverages", label: "Tea & Beverages", href: "/products?sub=tea_beverages" }*/
 ];
 
 export default function RootLayout({ children }) {
@@ -147,6 +146,7 @@ export default function RootLayout({ children }) {
                 </p>
                 {!isAdmin && (
                   <Link href="/cart" className="relative inline-flex items-center gap-1 text-slate-100 hover:text-amber-200">
+                    <span className="text-xl md:text-2xl font-semibold">🛒</span>
                     <span className="hidden md:inline text-sm">Cart</span>
                     {cartCount > 0 && (
                       <span className="absolute -top-1 -right-2 bg-rose-500 text-white text-[10px] rounded-full min-w-5 h-5 px-1 grid place-items-center font-semibold">

@@ -2,6 +2,17 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  CartesianGrid
+} from "recharts";
 
 const ORDER_STATUSES = ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'];
 const PAYMENT_STATUSES = ['pending', 'paid', 'failed', 'refunded'];
@@ -234,7 +245,7 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="mx-auto max-w-7xl p-4 md:p-8 grid grid-cols-1 lg:grid-cols-[250px_1fr] gap-6">
-        <aside className="bg-white rounded-xl shadow p-4 h-fit">
+        <aside className="bg-white rounded-xl shadow p-4 h-fit lg:sticky lg:top-24 self-start">
           <h2 className="text-lg font-bold">Admin Workflow</h2>
           <p className="text-sm text-gray-500 mb-4">Manage dashboard, products, categories, orders, and users.</p>
 
@@ -267,26 +278,112 @@ export default function AdminDashboard() {
 
           {tab === 'dashboard' && (
             <>
-              <h1 className="text-2xl font-bold">Dashboard Overview</h1>
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-white p-4 rounded-xl shadow"><p className="text-sm text-gray-500">Total Users</p><p className="text-2xl font-bold">{metrics.totalUsers}</p></div>
-                <div className="bg-white p-4 rounded-xl shadow"><p className="text-sm text-gray-500">Total Orders</p><p className="text-2xl font-bold">{metrics.totalOrders}</p></div>
-                <div className="bg-white p-4 rounded-xl shadow"><p className="text-sm text-gray-500">Total Revenue</p><p className="text-2xl font-bold">{money(metrics.totalRevenue)}</p></div>
-                <div className="bg-white p-4 rounded-xl shadow"><p className="text-sm text-gray-500">Total Products</p><p className="text-2xl font-bold">{metrics.totalProducts}</p></div>
+              <h1 className="text-3xl font-bold mb-6">📊 Dashboard Overview</h1>
+
+              {/* KPI CARDS */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div className="bg-white p-6 rounded-2xl shadow-lg">
+                  <p className="text-sm text-gray-500">Total Users</p>
+                  <p className="text-3xl font-bold">{metrics.totalUsers}</p>
+                </div>
+
+                <div className="bg-white p-6 rounded-2xl shadow-lg">
+                  <p className="text-sm text-gray-500">Total Orders</p>
+                  <p className="text-3xl font-bold">{metrics.totalOrders}</p>
+                </div>
+
+                <div className="bg-white p-6 rounded-2xl shadow-lg">
+                  <p className="text-sm text-gray-500">Total Revenue</p>
+                  <p className="text-3xl font-bold">{money(metrics.totalRevenue)}</p>
+                </div>
+
+                <div className="bg-white p-6 rounded-2xl shadow-lg">
+                  <p className="text-sm text-gray-500">Total Products</p>
+                  <p className="text-3xl font-bold">{metrics.totalProducts}</p>
+                </div>
               </div>
 
-              <div className="grid lg:grid-cols-2 gap-4">
+              {/* CHARTS SECTION */}
+              <div className="grid lg:grid-cols-2 gap-6 mb-8">
+                <div className="bg-white rounded-2xl shadow-lg p-6">
+                  <h3 className="font-semibold mb-4">Revenue Trend</h3>
+                  <ResponsiveContainer width="100%" height={250}>
+                    <LineChart
+                      data={recentOrders.filter(order => order.paymentStatus === 'paid').map((order, index) => ({
+                        name: `#${index + 1}`,
+                        revenue: order.totalAmount
+                      }))}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <Tooltip />
+                      <Line
+                        type="monotone"
+                        dataKey="revenue"
+                        stroke="#16a34a"
+                        strokeWidth={3}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+
+                <div className="bg-white rounded-2xl shadow-lg p-6">
+                  <h3 className="font-semibold mb-4">Orders by Status</h3>
+                  <ResponsiveContainer width="100%" height={250}>
+                    <BarChart
+                      data={ORDER_STATUSES.map((status) => ({
+                        name: status,
+                        count: orders.filter((o) => o.status === status).length
+                      }))}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar dataKey="count" fill="#3b82f6" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              {/* LOW STOCK ALERT */}
+              {products.filter((p) => p.stock <= 5).length > 0 && (
+                <div className="bg-red-100 border border-red-300 rounded-xl p-4">
+                  <h3 className="font-semibold text-red-700 mb-2">
+                    ⚠ Low Stock Products
+                  </h3>
+                  <ul className="text-sm text-red-600 space-y-1">
+                    {products
+                      .filter((p) => p.stock <= 5)
+                      .map((product) => (
+                        <li key={product._id}>
+                          {product.name} (Stock: {product.stock})
+                        </li>
+                      ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* KEEP YOUR EXISTING SECTIONS */}
+              <div className="grid lg:grid-cols-2 gap-4 mt-8">
                 <div className="bg-white rounded-xl shadow p-4">
                   <h3 className="font-semibold mb-3">Recent Orders</h3>
                   <div className="space-y-2">
                     {recentOrders.map((order) => (
                       <div key={order._id} className="border rounded p-2 text-sm">
                         <div className="font-medium">{order.user?.name || 'Unknown user'}</div>
-                        <div className="text-gray-600">{money(order.totalAmount)} | {order.status} | {order.paymentStatus}</div>
-                        <div className="text-xs text-gray-500">{formatDate(order.createdAt)}</div>
+                        <div className="text-gray-600">
+                          {money(order.totalAmount)} | {order.status} | {order.paymentStatus}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {formatDate(order.createdAt)}
+                        </div>
                       </div>
                     ))}
-                    {recentOrders.length === 0 && <p className="text-sm text-gray-500">No orders yet.</p>}
+                    {recentOrders.length === 0 && (
+                      <p className="text-sm text-gray-500">No orders yet.</p>
+                    )}
                   </div>
                 </div>
 
@@ -299,12 +396,16 @@ export default function AdminDashboard() {
                         <span>{product.sold || 0} sold</span>
                       </div>
                     ))}
-                    {topProducts.length === 0 && <p className="text-sm text-gray-500">No product sales yet.</p>}
+                    {topProducts.length === 0 && (
+                      <p className="text-sm text-gray-500">No product sales yet.</p>
+                    )}
                   </div>
                 </div>
               </div>
             </>
           )}
+
+          
 
           {tab === 'categories' && (
             <>
