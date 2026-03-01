@@ -87,6 +87,7 @@ export default function OrdersPage() {
                 <div className="text-left md:text-right">
                   <p className="font-bold text-lg">{money(order.totalAmount)}</p>
                   <p className="text-xs md:text-sm">Payment: <span className="capitalize font-medium">{order.paymentStatus || "pending"}</span></p>
+                  <p className="text-xs md:text-sm">Method: <span className="font-medium">{order.paymentMethod || "-"}</span></p>
                 </div>
               </div>
 

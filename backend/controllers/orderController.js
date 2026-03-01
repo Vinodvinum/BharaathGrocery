@@ -1,13 +1,80 @@
 const Order = require('../models/Order');
+const mongoose = require('mongoose');
 const Product = require('../models/Product');
 const Cart = require('../models/Cart');
 
+const ALLOWED_PAYMENT_METHODS = ['COD', 'RAZORPAY'];
+
+const normalizeShippingAddress = (shippingAddress = {}) => ({
+  fullName: String(shippingAddress.fullName || '').trim(),
+  phone: String(shippingAddress.phone || '').trim(),
+  addressLine1: String(shippingAddress.addressLine1 || '').trim(),
+  addressLine2: String(shippingAddress.addressLine2 || '').trim(),
+  city: String(shippingAddress.city || '').trim(),
+  state: String(shippingAddress.state || '').trim(),
+  pincode: String(shippingAddress.pincode || '').trim()
+});
+
+const validateShippingAddress = (shippingAddress) => {
+  if (!shippingAddress.fullName || shippingAddress.fullName.length < 2) {
+    return 'Please provide a valid full name';
+  }
+
+  if (!/^[0-9]{10}$/.test(shippingAddress.phone)) {
+    return 'Please provide a valid 10-digit phone number';
+  }
+
+  if (!shippingAddress.addressLine1 || shippingAddress.addressLine1.length < 5) {
+    return 'Please provide a valid address line 1';
+  }
+
+  if (!shippingAddress.city || shippingAddress.city.length < 2) {
+    return 'Please provide a valid city';
+  }
+
+  if (!shippingAddress.state || shippingAddress.state.length < 2) {
+    return 'Please provide a valid state';
+  }
+
+  if (!/^[0-9]{6}$/.test(shippingAddress.pincode)) {
+    return 'Please provide a valid 6-digit pincode';
+  }
+
+  return null;
+};
+
 exports.createOrder = async (req, res) => {
   try {
-    const { items, shippingAddress, paymentStatus } = req.body;
+    const {
+      items,
+      shippingAddress,
+      paymentMethod = 'COD',
+      paymentStatus,
+      paymentDetails = {}
+    } = req.body;
 
     if (!Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ success: false, message: 'Order items are required' });
+    }
+
+    if (!ALLOWED_PAYMENT_METHODS.includes(paymentMethod)) {
+      return res.status(400).json({ success: false, message: 'Invalid payment method' });
+    }
+
+    const normalizedShippingAddress = normalizeShippingAddress(shippingAddress);
+    const shippingValidationError = validateShippingAddress(normalizedShippingAddress);
+    if (shippingValidationError) {
+      return res.status(400).json({ success: false, message: shippingValidationError });
+    }
+
+    const hasInvalidQuantity = items.some((item) => !Number.isInteger(Number(item.quantity)) || Number(item.quantity) < 1);
+    if (hasInvalidQuantity) {
+      return res.status(400).json({ success: false, message: 'Each order item must have quantity of at least 1' });
+    }
+
+    const hasInvalidProductId = items.some((item) => !mongoose.Types.ObjectId.isValid(String(item.product || '')));
+    if (hasInvalidProductId) {
+      return res.status(400).json({ success: false, message: 'One or more products have invalid identifiers' });
     }
 
     const productIds = items.map((item) => item.product);
@@ -39,14 +106,27 @@ exports.createOrder = async (req, res) => {
       totalAmount += product.price * item.quantity;
     }
 
+    const finalPaymentStatus = paymentMethod === 'COD'
+      ? 'pending'
+      : (paymentStatus === 'paid' ? 'paid' : 'pending');
+
     const order = await Order.create({
       user: req.user._id,
       items: validatedItems,
       totalAmount,
-      paymentStatus: paymentStatus || 'pending',
+      paymentMethod,
+      paymentStatus: finalPaymentStatus,
+      paymentDetails: paymentMethod === 'RAZORPAY' ? {
+        razorpayOrderId: paymentDetails.razorpayOrderId || '',
+        razorpayPaymentId: paymentDetails.razorpayPaymentId || '',
+        razorpaySignature: paymentDetails.razorpaySignature || ''
+      } : {},
       status: 'pending',
-      shippingAddress,
-      statusHistory: [{ status: 'pending', comment: 'Order placed' }]
+      shippingAddress: normalizedShippingAddress,
+      statusHistory: [{
+        status: 'pending',
+        comment: paymentMethod === 'COD' ? 'Order placed (Cash on Delivery)' : 'Order placed (Online Payment)'
+      }]
     });
 
     for (const item of validatedItems) {

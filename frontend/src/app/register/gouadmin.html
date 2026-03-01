@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sri Goshala – Admin Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f7f3ea;
+      color: #333;
+      margin: 0;
+    }
+    .container {
+      width: min(900px, 100% - 2rem);
+      margin: 0 auto;
+      padding: 2rem 0 3rem;
+    }
+    h1 {
+      font-size: 1.7rem;
+      margin-bottom: 0.25rem;
+      color: #5b371f;
+    }
+    .subtitle {
+      color: #777;
+      font-size: 0.9rem;
+      margin-bottom: 1.75rem;
+    }
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 1.25rem 1.4rem 1.5rem;
+      margin-bottom: 1.25rem;
+      border: 1px solid #e5d5c2;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+    }
+    .card h2 {
+      font-size: 1.1rem;
+      margin: 0 0 0.75rem;
+      color: #5b371f;
+    }
+    label {
+      display: block;
+      font-size: 0.85rem;
+      margin-bottom: 0.2rem;
+      color: #5b371f;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 0.45rem 0.6rem;
+      border-radius: 6px;
+      border: 1px solid #e0cdb2;
+      font-size: 0.9rem;
+      margin-bottom: 0.7rem;
+      background: #fffdf8;
+      box-sizing: border-box;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    button {
+      padding: 0.45rem 1.1rem;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+      background: #7a4e2d;
+      color: #fff;
+    }
+    button:hover {
+      background: #5b371f;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+    }
+    th, td {
+      border: 1px solid #e5d5c2;
+      padding: 0.5rem;
+      text-align: left;
+    }
+    th {
+      background: #f2e2cf;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Admin Panel – Sri Goshala</h1>
+    <p class="subtitle">
+      Simple static admin preview. Later you can hook these forms to your backend / database.
+    </p>
+
+    <div class="card">
+      <h2>Add / Manage Cows</h2>
+      <label for="cow-name">Cow Name</label>
+      <input id="cow-name" type="text" placeholder="e.g., Ganga">
+
+      <label for="cow-age">Age</label>
+      <input id="cow-age" type="text" placeholder="e.g., 5 years">
+
+      <label for="cow-story">Short Rescue Story</label>
+      <textarea id="cow-story" placeholder="Short 2–3 line story about the cow"></textarea>
+
+      <label for="cow-image">Image URL</label>
+      <input id="cow-image" type="url" placeholder="https://...">
+
+      <button type="button">Save Cow (Demo)</button>
+    </div>
+
+    <div class="card">
+      <h2>Add Blog Post</h2>
+      <label for="blog-title">Title</label>
+      <input id="blog-title" type="text" placeholder="Blog title">
+
+      <label for="blog-date">Date</label>
+      <input id="blog-date" type="date">
+
+      <label for="blog-category">Category</label>
+      <select id="blog-category">
+        <option>Rescue Story</option>
+        <option>Festival</option>
+        <option>Cow Care Tips</option>
+        <option>Goshala Activities</option>
+      </select>
+
+      <label for="blog-image">Cover Image URL</label>
+      <input id="blog-image" type="url" placeholder="https://...">
+
+      <label for="blog-content">Content</label>
+      <textarea id="blog-content" placeholder="Full blog article content"></textarea>
+
+      <button type="button">Publish Blog (Demo)</button>
+    </div>
+
+    <div class="card">
+      <h2>Add Product</h2>
+      <label for="prod-name">Product Name</label>
+      <input id="prod-name" type="text" placeholder="e.g., Cow Dung Cakes">
+
+      <label for="prod-price">Price</label>
+      <input id="prod-price" type="text" placeholder="e.g., ₹ 120 / 20 pieces">
+
+      <label for="prod-desc">Short Description</label>
+      <textarea id="prod-desc" placeholder="1–2 lines about the product"></textarea>
+
+      <label for="prod-image">Image URL</label>
+      <input id="prod-image" type="url" placeholder="https://...">
+
+      <button type="button">Save Product (Demo)</button>
+    </div>
+
+    <div class="card">
+      <h2>Upload Gallery Item</h2>
+      <label for="gallery-type">Type</label>
+      <select id="gallery-type">
+        <option>Photo</option>
+        <option>Video</option>
+        <option>Event</option>
+      </select>
+
+      <label for="gallery-url">Image / Video URL</label>
+      <input id="gallery-url" type="url" placeholder="https://...">
+
+      <label for="gallery-caption">Caption</label>
+      <input id="gallery-caption" type="text" placeholder="Short caption">
+
+      <button type="button">Add to Gallery (Demo)</button>
+    </div>
+
+    <div class="card">
+      <h2>View Donations (Sample)</h2>
+      <table>
+        <thead>
+        <tr>
+          <th>Date</th>
+          <th>Donor Name</th>
+          <th>Amount</th>
+          <th>Purpose</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td>12-02-2026</td>
+          <td>Ravi Kumar</td>
+          <td>₹ 3,000</td>
+          <td>Monthly Cow Sponsorship</td>
+        </tr>
+        <tr>
+          <td>01-02-2026</td>
+          <td>Anjali</td>
+          <td>₹ 500</td>
+          <td>Feed a Cow</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

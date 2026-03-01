@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="kn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevaAI - Karnataka Spiritual Companion</title>
+    <style>
+        :root {
+            --saffron: #FF6B1A;
+            --deep-saffron: #D84315;
+            --cream: #FFF8E7;
+            --warm-white: #FFFEF7;
+            --dark-brown: #4A3428;
+            --medium-brown: #6B4C3A;
+            --light-saffron: #FFE8D6;
+            --green: #2E7D32;
+            --gold: #FFC107;
+            --red: #C62828;
+            --border-color: rgba(74, 52, 40, 0.15);
+            --shadow: 0 2px 12px rgba(0,0,0,0.08);
+            --shadow-medium: 0 4px 20px rgba(0,0,0,0.12);
+            --gradient-temple: linear-gradient(135deg, #FF6B1A 0%, #FFA726 100%);
+            --gradient-card: linear-gradient(to bottom, #FFFEF7, #FFF8E7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans Kannada', 'Nirmala UI', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--cream);
+            color: var(--dark-brown);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .phone-frame {
+            max-width: 400px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            border: 12px solid #1a1a1a;
+        }
+
+        .screen {
+            height: 812px;
+            overflow-y: auto;
+            background: var(--cream);
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 20px;
+            font-size: 12px;
+            background: var(--cream);
+        }
+
+        .greeting {
+            background: var(--gradient-temple);
+            color: white;
+            padding: 28px 20px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 4px 12px rgba(255, 107, 26, 0.2);
+        }
+
+        .greeting::before {
+            content: '🪔';
+            position: absolute;
+            top: 12px;
+            left: 20px;
+            font-size: 20px;
+            opacity: 0.9;
+        }
+
+        .greeting::after {
+            content: '🪔';
+            position: absolute;
+            top: 12px;
+            right: 20px;
+            font-size: 20px;
+            opacity: 0.9;
+        }
+
+        .greeting h1 {
+            font-size: 24px;
+            margin-bottom: 6px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .greeting p {
+            font-size: 15px;
+            opacity: 0.95;
+            font-weight: 500;
+        }
+
+        .panchanga-card {
+            background: var(--warm-white);
+            margin: 16px;
+            padding: 18px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-medium);
+            border: 2px solid var(--light-saffron);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panchanga-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient-temple);
+        }
+
+        .panchanga-card h3 {
+            font-size: 17px;
+            margin-bottom: 16px;
+            color: var(--deep-saffron);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+
+        .panchanga-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .panchanga-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .panchanga-item label {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #888;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .panchanga-item span {
+            font-size: 15px;
+            color: var(--dark-brown);
+            font-weight: 600;
+        }
+
+        .sloka-card {
+            background: var(--gradient-card);
+            margin: 16px;
+            padding: 22px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-medium);
+            border: 2px solid rgba(255, 193, 7, 0.3);
+        }
+
+        .sloka-card h3 {
+            font-size: 17px;
+            margin-bottom: 14px;
+            color: var(--deep-saffron);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sloka-text {
+            font-size: 17px;
+            line-height: 2;
+            color: var(--dark-brown);
+            font-style: italic;
+            margin-bottom: 14px;
+            padding: 16px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 12px;
+            border-left: 3px solid var(--gold);
+            font-weight: 500;
+        }
+
+        .sloka-meaning {
+            font-size: 13px;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .btn-explain {
+            margin-top: 12px;
+            padding: 12px 18px;
+            background: white;
+            border: 2px solid var(--saffron);
+            color: var(--saffron);
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(255, 107, 26, 0.15);
+        }
+
+        .btn-explain:hover {
+            background: var(--saffron);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 26, 0.3);
+        }
+
+        .temple-highlight {
+            background: var(--warm-white);
+            margin: 16px;
+            padding: 0;
+            border-radius: 16px;
+            box-shadow: var(--shadow-medium);
+            overflow: hidden;
+            border: 2px solid var(--light-saffron);
+        }
+
+        .temple-image {
+            width: 100%;
+            height: 160px;
+            background: var(--gradient-temple);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 64px;
+            position: relative;
+        }
+
+        .temple-image::before {
+            content: '✨';
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+        }
+
+        .temple-image::after {
+            content: '✨';
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+        }
+
+        .temple-info {
+            padding: 16px;
+        }
+
+        .temple-info h3 {
+            font-size: 17px;
+            color: var(--deep-saffron);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .temple-info p {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+
+        .temple-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--gradient-temple);
+            color: white;
+            box-shadow: 0 3px 10px rgba(255, 107, 26, 0.25);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 26, 0.35);
+        }
+
+        .btn-secondary {
+            background: var(--warm-white);
+            color: var(--dark-brown);
+            border: 2px solid var(--light-saffron);
+        }
+
+        .btn-secondary:hover {
+            background: var(--light-saffron);
+        }
+
+        .bottom-nav {
+            position: sticky;
+            bottom: 0;
+            background: white;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            border-top: 1px solid var(--border-color);
+            padding: 8px 0;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.3s;
+        }
+
+        .nav-item.active {
+            color: var(--saffron);
+        }
+
+        .nav-item:hover {
+            color: var(--saffron);
+        }
+
+        .nav-icon {
+            font-size: 24px;
+        }
+
+        .nav-label {
+            font-size: 11px;
+        }
+
+        .screen-controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            padding: 12px 20px;
+            border-radius: 30px;
+            display: flex;
+            gap: 12px;
+            z-index: 1000;
+        }
+
+        .screen-btn {
+            padding: 8px 16px;
+            background: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .screen-btn.active {
+            background: var(--saffron);
+            color: white;
+        }
+
+        .screen-content {
+            display: none;
+        }
+
+        .screen-content.active {
+            display: block;
+        }
+
+        /* Chat Screen */
+        .chat-header {
+            background: white;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .chat-header h2 {
+            font-size: 18px;
+        }
+
+        .chat-messages {
+            padding: 16px;
+            min-height: 600px;
+        }
+
+        .message {
+            margin-bottom: 16px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .message-ai {
+            flex-direction: row;
+        }
+
+        .message-user {
+            flex-direction: row-reverse;
+        }
+
+        .message-bubble {
+            max-width: 75%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .message-ai .message-bubble {
+            background: white;
+            border: 1px solid var(--border-color);
+        }
+
+        .message-user .message-bubble {
+            background: var(--saffron);
+            color: white;
+        }
+
+        .chat-input-area {
+            position: sticky;
+            bottom: 56px;
+            background: white;
+            padding: 12px 16px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            font-size: 14px;
+        }
+
+        /* Temple List Screen */
+        .temple-list {
+            padding: 16px;
+        }
+
+        .temple-card {
+            background: var(--warm-white);
+            margin-bottom: 12px;
+            padding: 14px;
+            border-radius: 14px;
+            box-shadow: var(--shadow-medium);
+            display: flex;
+            gap: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid var(--light-saffron);
+        }
+
+        .temple-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 24px rgba(0,0,0,0.15);
+            border-color: var(--saffron);
+        }
+
+        .temple-thumb {
+            width: 85px;
+            height: 85px;
+            border-radius: 12px;
+            background: var(--gradient-temple);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 38px;
+            box-shadow: 0 3px 10px rgba(255, 107, 26, 0.2);
+        }
+
+        .temple-details {
+            flex: 1;
+        }
+
+        .temple-details h4 {
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+
+        .temple-meta {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 8px;
+        }
+
+        .temple-status {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #e8f5e9;
+            color: var(--green);
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        /* Profile Screen */
+        .profile-content {
+            padding: 16px;
+        }
+
+        .profile-header {
+            text-align: center;
+            padding: 32px 16px;
+            background: white;
+            margin-bottom: 16px;
+            border-radius: 12px;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            background: var(--light-saffron);
+            border-radius: 50%;
+            margin: 0 auto 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+        }
+
+        .profile-name {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .profile-email {
+            font-size: 13px;
+            color: #999;
+        }
+
+        .profile-section {
+            background: white;
+            margin-bottom: 16px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .profile-item {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .profile-item:last-child {
+            border-bottom: none;
+        }
+
+        .premium-banner {
+            background: var(--gradient-temple);
+            color: white;
+            padding: 24px;
+            margin: 16px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(255, 107, 26, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .premium-banner::before {
+            content: '✨';
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            font-size: 28px;
+            opacity: 0.8;
+        }
+
+        .premium-banner::after {
+            content: '✨';
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            opacity: 0.8;
+        }
+
+        .premium-banner h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .premium-banner p {
+            font-size: 14px;
+            margin-bottom: 18px;
+            opacity: 0.95;
+            font-weight: 500;
+        }
+
+        .btn-premium {
+            background: white;
+            color: var(--deep-saffron);
+            padding: 14px 28px;
+            border-radius: 28px;
+            border: none;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: all 0.3s;
+        }
+
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="screen">
+            <!-- Home Screen -->
+            <div id="home-screen" class="screen-content active">
+                <div class="status-bar">
+                    <span>9:41</span>
+                    <span>📶 🔋</span>
+                </div>
+
+                <div class="greeting">
+                    <h1>ಶುಭೋದಯ, Vinod 🙏</h1>
+                    <p>ಮಾಘ ಮಾಸ, ಫಾಲ್ಗುಣ ೧೪, ೨೦೨೬</p>
+                </div>
+
+                <div class="panchanga-card">
+                    <h3>📅 ಇಂದಿನ ಪಂಚಾಂಗ</h3>
+                    <div class="panchanga-grid">
+                        <div class="panchanga-item">
+                            <label>ತಿಥಿ</label>
+                            <span>ಚತುರ್ದಶಿ</span>
+                        </div>
+                        <div class="panchanga-item">
+                            <label>ನಕ್ಷತ್ರ</label>
+                            <span>ಪೂರ್ವಾಷಾಢ</span>
+                        </div>
+                        <div class="panchanga-item">
+                            <label>ರಾಹು ಕಾಲ</label>
+                            <span>12:30 - 2:00 PM</span>
+                        </div>
+                        <div class="panchanga-item">
+                            <label>ಅಭಿಜಿತ್ ಮುಹೂರ್ತ</label>
+                            <span>11:48 - 12:36 PM</span>
+                        </div>
+                        <div class="panchanga-item">
+                            <label>ಸೂರ್ಯೋದಯ</label>
+                            <span>6:48 AM</span>
+                        </div>
+                        <div class="panchanga-item">
+                            <label>ಸೂರ್ಯಾಸ್ತ</label>
+                            <span>6:35 PM</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sloka-card">
+                    <h3>📿 ಇಂದಿನ ಶ್ಲೋಕ</h3>
+                    <div class="sloka-text">
+                        ಓಂ ಭೂರ್ಭುವಃ ಸ್ವಃ<br>
+                        ತತ್ಸವಿತುರ್ವರೇಣ್ಯಂ<br>
+                        ಭರ್ಗೋ ದೇವಸ್ಯ ಧೀಮಹಿ<br>
+                        ಧಿಯೋ ಯೋ ನಃ ಪ್ರಚೋದಯಾತ್
+                    </div>
+                    <div class="sloka-meaning">
+                        ಆ ದಿವ್ಯ ಸವಿತೃ ದೇವನ ಆ ತೇಜಸ್ಸನ್ನು ನಾವು ಧ್ಯಾನಿಸುತ್ತೇವೆ, ನಮ್ಮ ಬುದ್ಧಿಯನ್ನು ಸನ್ಮಾರ್ಗದಲ್ಲಿ ಪ್ರೇರೇಪಿಸಲಿ.
+                    </div>
+                    <button class="btn-explain">ವಿವರವಾಗಿ ತಿಳಿಯಿರಿ →</button>
+                </div>
+
+                <div class="temple-highlight">
+                    <div class="temple-image">🛕</div>
+                    <div class="temple-info">
+                        <h3>ಇಂದಿನ ವಿಶೇಷ ದರ್ಶನ</h3>
+                        <p>📍 ಚಾಮುಂಡೇಶ್ವರಿ ದೇವಾಲಯ, ಮೈಸೂರು</p>
+                        <p style="font-size: 11px; color: var(--green); margin-bottom: 8px;">✓ ಈಗ ತೆರೆದಿದೆ • 5:30 AM - 9:00 PM</p>
+                        <div class="temple-actions">
+                            <button class="btn btn-primary">📍 ನಕ್ಷೆಯಲ್ಲಿ ನೋಡಿ</button>
+                            <button class="btn btn-secondary">⏰ ಸಮಯ ಸೂಚಿ</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="premium-banner">
+                    <h3>✨ Premium ಗೆ ಅಪ್‌ಗ್ರೇಡ್ ಮಾಡಿ</h3>
+                    <p>ವೈಯಕ್ತಿಕ ಮುಹೂರ್ತ, AI ವಿವರಣೆ, ಮತ್ತು ಹೆಚ್ಚಿನದಕ್ಕಾಗಿ</p>
+                    <button class="btn-premium">₹49/ತಿಂಗಳು - ಪ್ರಾರಂಭಿಸಿ</button>
+                </div>
+            </div>
+
+            <!-- Chat Screen -->
+            <div id="chat-screen" class="screen-content">
+                <div class="status-bar">
+                    <span>9:41</span>
+                    <span>📶 🔋</span>
+                </div>
+                <div class="chat-header">
+                    <span style="font-size: 24px;">🤖</span>
+                    <div>
+                        <h2>DevaAI ಸಹಾಯಕ</h2>
+                        <p style="font-size: 12px; color: #999;">ನಿಮ್ಮ ಆಧ್ಯಾತ್ಮಿಕ ಸಂಗಾತಿ</p>
+                    </div>
+                </div>
+                <div class="chat-messages">
+                    <div class="message message-ai">
+                        <div style="font-size: 24px;">🤖</div>
+                        <div class="message-bubble">
+                            ನಮಸ್ಕಾರ! 🙏 ನಾನು DevaAI. ದೇವಾಲಯಗಳು, ವ್ರತಗಳು, ಹಬ್ಬಗಳು ಮತ್ತು ಮಂತ್ರಗಳ ಬಗ್ಗೆ ನಾನು ನಿಮಗೆ ಸಹಾಯ ಮಾಡಬಲ್ಲೆ.
+                        </div>
+                    </div>
+                    <div class="message message-user">
+                        <div class="message-bubble">
+                            ಏಕಾದಶಿ ವ್ರತ ಹೇಗೆ ಆಚರಿಸಬೇಕು?
+                        </div>
+                    </div>
+                    <div class="message message-ai">
+                        <div style="font-size: 24px;">🤖</div>
+                        <div class="message-bubble">
+                            ಏಕಾದಶಿ ವ್ರತ ಆಚರಣೆ:<br><br>
+                            🌅 <strong>ಪ್ರಾರಂಭ:</strong> ದಶಮಿ ದಿನ ರಾತ್ರಿ ಒಂದು ಊಟ ಮಾತ್ರ<br>
+                            🙏 <strong>ವ್ರತದ ದಿನ:</strong> ಧಾನ್ಯ, ಅನ್ನ ತ್ಯಾಗ<br>
+                            💧 ಹಣ್ಣು, ಹಾಲು, ನೀರು ಸೇವಿಸಬಹುದು<br>
+                            📿 ವಿಷ್ಣು ಸಹಸ್ರನಾಮ ಪಠಣ ಶ್ರೇಷ್ಠ<br><br>
+                            ಮುಂದಿನ ಏಕಾದಶಿ: ಮಾಘ ಶುದ್ಧ ಏಕಾದಶಿ (ಫೆಬ್ರವರಿ ೨೨)
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" class="chat-input" placeholder="ನಿಮ್ಮ ಪ್ರಶ್ನೆ ಕೇಳಿ...">
+                    <button class="btn btn-primary" style="border-radius: 50%; width: 44px; height: 44px; padding: 0;">🎤</button>
+                </div>
+            </div>
+
+            <!-- Temples Screen -->
+            <div id="temples-screen" class="screen-content">
+                <div class="status-bar">
+                    <span>9:41</span>
+                    <span>📶 🔋</span>
+                </div>
+                <div class="chat-header">
+                    <h2>🛕 ಕರ್ನಾಟಕ ದೇವಾಲಯಗಳು</h2>
+                </div>
+                <div class="temple-list">
+                    <div class="temple-card">
+                        <div class="temple-thumb">🛕</div>
+                        <div class="temple-details">
+                            <h4>ಚಾಮುಂಡೇಶ್ವರಿ ದೇವಾಲಯ</h4>
+                            <div class="temple-meta">📍 ಮೈಸೂರು • 3.2 km ದೂರದಲ್ಲಿ</div>
+                            <span class="temple-status">✓ ತೆರೆದಿದೆ</span>
+                        </div>
+                    </div>
+                    <div class="temple-card">
+                        <div class="temple-thumb">🛕</div>
+                        <div class="temple-details">
+                            <h4>ಶ್ರೀ ರಂಗನಾಥಸ್ವಾಮಿ ದೇವಾಲಯ</h4>
+                            <div class="temple-meta">📍 ಶ್ರೀರಂಗಪಟ್ಟಣ • 15 km ದೂರದಲ್ಲಿ</div>
+                            <span class="temple-status">✓ ತೆರೆದಿದೆ</span>
+                        </div>
+                    </div>
+                    <div class="temple-card">
+                        <div class="temple-thumb">🛕</div>
+                        <div class="temple-details">
+                            <h4>ನಂಜನಗೂಡು ಶ್ರೀಕಂಠೇಶ್ವರ</h4>
+                            <div class="temple-meta">📍 ನಂಜನಗೂಡು • 25 km ದೂರದಲ್ಲಿ</div>
+                            <span class="temple-status">✓ ತೆರೆದಿದೆ</span>
+                        </div>
+                    </div>
+                    <div class="temple-card">
+                        <div class="temple-thumb">🛕</div>
+                        <div class="temple-details">
+                            <h4>ಮೇಲುಕೋಟೆ ಚೆಲುವನಾರಾಯಣಸ್ವಾಮಿ</h4>
+                            <div class="temple-meta">📍 ಮೇಲುಕೋಟೆ • 51 km ದೂರದಲ್ಲಿ</div>
+                            <span class="temple-status">✓ ತೆರೆದಿದೆ</span>
+                        </div>
+                    </div>
+                    <div class="temple-card">
+                        <div class="temple-thumb">🛕</div>
+                        <div class="temple-details">
+                            <h4>ತಲಕಾಡು ವೈದ್ಯನಾಥೇಶ್ವರ</h4>
+                            <div class="temple-meta">📍 ತಲಕಾಡು • 45 km ದೂರದಲ್ಲಿ</div>
+                            <span class="temple-status">✓ ತೆರೆದಿದೆ</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Screen -->
+            <div id="profile-screen" class="screen-content">
+                <div class="status-bar">
+                    <span>9:41</span>
+                    <span>📶 🔋</span>
+                </div>
+                <div class="chat-header">
+                    <h2>👤 ನನ್ನ ಪ್ರೊಫೈಲ್</h2>
+                </div>
+                <div class="profile-content">
+                    <div class="profile-header">
+                        <div class="profile-avatar">🙏</div>
+                        <div class="profile-name">Vinod</div>
+                        <div class="profile-email">vinod@example.com</div>
+                    </div>
+
+                    <div class="profile-section">
+                        <div class="profile-item">
+                            <span>📍 ಸ್ಥಳ</span>
+                            <span style="color: #999;">ಮೈಸೂರು</span>
+                        </div>
+                        <div class="profile-item">
+                            <span>⭐ ನಕ್ಷತ್ರ</span>
+                            <span style="color: #999;">ಪೂರ್ವಾಷಾಢ</span>
+                        </div>
+                        <div class="profile-item">
+                            <span>🙏 ಆಯ್ಕೆ ದೇವತೆ</span>
+                            <span style="color: #999;">ಶ್ರೀ ವಿಷ್ಣು</span>
+                        </div>
+                        <div class="profile-item">
+                            <span>🛕 ಆಯ್ಕೆ ದೇವಸ್ಥಾನ</span>
+                            <span style="color: #999;">ಚಾಮುಂಡೇಶ್ವರಿ</span>
+                        </div>
+                    </div>
+
+                    <div class="profile-section">
+                        <div class="profile-item">
+                            <span>🔔 ಸೂಚನೆಗಳು</span>
+                            <span style="color: var(--green);">ಆನ್</span>
+                        </div>
+                        <div class="profile-item">
+                            <span>🌐 ಭಾಷೆ</span>
+                            <span style="color: #999;">ಕನ್ನಡ</span>
+                        </div>
+                        <div class="profile-item">
+                            <span>✨ Premium ಸ್ಥಿತಿ</span>
+                            <span style="color: #999;">ಮುಕ್ತ</span>
+                        </div>
+                    </div>
+
+                    <div class="profile-section">
+                        <div class="profile-item">
+                            <span>ℹ️ ಬಗ್ಗೆ</span>
+                            <span>→</span>
+                        </div>
+                        <div class="profile-item">
+                            <span>📞 ಸಂಪರ್ಕಿಸಿ</span>
+                            <span>→</span>
+                        </div>
+                        <div class="profile-item">
+                            <span>🔒 ಗೌಪ್ಯತೆ ನೀತಿ</span>
+                            <span>→</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="bottom-nav">
+                <div class="nav-item active" onclick="switchScreen('home')">
+                    <div class="nav-icon">🏠</div>
+                    <div class="nav-label">ಮುಖಪುಟ</div>
+                </div>
+                <div class="nav-item" onclick="switchScreen('chat')">
+                    <div class="nav-icon">💬</div>
+                    <div class="nav-label">AI ಸಹಾಯಕ</div>
+                </div>
+                <div class="nav-item" onclick="switchScreen('temples')">
+                    <div class="nav-icon">🛕</div>
+                    <div class="nav-label">ದೇವಾಲಯಗಳು</div>
+                </div>
+                <div class="nav-item" onclick="switchScreen('profile')">
+                    <div class="nav-icon">👤</div>
+                    <div class="nav-label">ಪ್ರೊಫೈಲ್</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="screen-controls">
+        <button class="screen-btn active" onclick="switchScreen('home')">Home</button>
+        <button class="screen-btn" onclick="switchScreen('chat')">Chat</button>
+        <button class="screen-btn" onclick="switchScreen('temples')">Temples</button>
+        <button class="screen-btn" onclick="switchScreen('profile')">Profile</button>
+    </div>
+
+    <script>
+        function switchScreen(screen) {
+            // Hide all screens
+            document.querySelectorAll('.screen-content').forEach(s => s.classList.remove('active'));
+            
+            // Show selected screen
+            document.getElementById(screen + '-screen').classList.add('active');
+            
+            // Update nav active state
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            const navItems = document.querySelectorAll('.nav-item');
+            const screenMap = { home: 0, chat: 1, temples: 2, profile: 3 };
+            navItems[screenMap[screen]].classList.add('active');
+            
+            // Update control buttons
+            document.querySelectorAll('.screen-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Scroll to top
+            document.querySelector('.screen').scrollTop = 0;
+        }
+    </script>
+</body>
+</html>

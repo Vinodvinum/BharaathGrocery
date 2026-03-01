@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="kn">
+<head>
+  <meta charset="UTF-8">
+  <title>DevaAI – ಕರ್ನಾಟಕ ಆಧ್ಯಾತ್ಮಿಕ ಸಂಗಾತಿ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --saffron: #FF6B1A;
+      --deep-saffron: #D84315;
+      --cream: #FFF8E7;
+      --warm-white: #FFFEF7;
+      --dark-brown: #4A3428;
+      --light-saffron: #FFE8D6;
+      --green: #2E7D32;
+      --border-color: rgba(74,52,40,0.15);
+      --shadow: 0 6px 24px rgba(0,0,0,0.12);
+    }
+
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{
+      font-family:'Noto Sans Kannada','Nirmala UI',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+      background:var(--cream);
+      color:var(--dark-brown);
+    }
+
+    header{
+      background:linear-gradient(135deg,#FF6B1A,#FFA726);
+      color:white;
+      padding:16px 48px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      position:sticky;
+      top:0;
+      z-index:10;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight:700;
+      font-size:22px;
+    }
+    .brand span.logo{
+      width:36px;
+      height:36px;
+      border-radius:12px;
+      background:rgba(255,255,255,0.15);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:22px;
+    }
+    nav{
+      display:flex;
+      gap:20px;
+      font-size:14px;
+    }
+    nav a{
+      color:white;
+      text-decoration:none;
+      opacity:0.9;
+    }
+    nav a:hover{opacity:1;}
+
+    .btn-primary{
+      background:white;
+      color:var(--deep-saffron);
+      border:none;
+      padding:10px 18px;
+      border-radius:999px;
+      font-weight:600;
+      cursor:pointer;
+      box-shadow:0 4px 12px rgba(0,0,0,0.15);
+      font-size:14px;
+    }
+
+    main{
+      max-width:1100px;
+      margin:0 auto;
+      padding:32px 16px 60px;
+    }
+
+    .hero{
+      display:grid;
+      grid-template-columns:1.2fr 1fr;
+      gap:32px;
+      align-items:center;
+      margin-bottom:40px;
+    }
+    @media(max-width:900px){
+      .hero{grid-template-columns:1fr;}
+    }
+
+    .hero-title{
+      font-size:32px;
+      line-height:1.3;
+      margin-bottom:12px;
+    }
+    .hero-sub{
+      font-size:15px;
+      color:#6B4C3A;
+      margin-bottom:20px;
+    }
+    .hero-badges{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-bottom:20px;
+    }
+    .hero-badge{
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.9);
+      border:1px solid rgba(255,255,255,0.7);
+    }
+
+    .hero-cta{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      margin-bottom:12px;
+    }
+    .hero-note{
+      font-size:12px;
+      color:#6B4C3A;
+    }
+
+    .hero-right{
+      background:var(--warm-white);
+      border-radius:24px;
+      padding:18px;
+      box-shadow:var(--shadow);
+      border:1px solid var(--light-saffron);
+    }
+    .mini-status{
+      font-size:11px;
+      display:flex;
+      justify-content:space-between;
+      margin-bottom:8px;
+      color:#777;
+    }
+    .mini-greeting{
+      background:linear-gradient(135deg,#FF6B1A,#FFA726);
+      color:white;
+      border-radius:18px;
+      padding:14px;
+      text-align:center;
+      margin-bottom:12px;
+      font-size:14px;
+    }
+    .mini-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      font-size:12px;
+      margin-bottom:12px;
+    }
+    .mini-card{
+      background:white;
+      border-radius:12px;
+      padding:8px 10px;
+      border:1px solid var(--light-saffron);
+    }
+    .mini-label{
+      font-size:10px;
+      text-transform:uppercase;
+      color:#999;
+      margin-bottom:2px;
+      font-weight:600;
+    }
+    .mini-value{
+      font-weight:600;
+    }
+    .mini-sloka{
+      background:linear-gradient(to bottom,#FFFDF8,#FFEFD8);
+      border-radius:12px;
+      padding:10px 12px;
+      font-size:12px;
+      margin-bottom:10px;
+    }
+    .mini-temple{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-size:12px;
+    }
+    .mini-temple-icon{
+      width:32px;
+      height:32px;
+      border-radius:10px;
+      background:linear-gradient(135deg,#FF6B1A,#FFA726);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:18px;
+      color:white;
+    }
+
+    .section-title{
+      font-size:22px;
+      margin:32px 0 12px;
+    }
+    .section-sub{
+      font-size:13px;
+      color:#6B4C3A;
+      margin-bottom:16px;
+    }
+
+    .cards-3{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:18px;
+    }
+    @media(max-width:900px){
+      .cards-3{grid-template-columns:1fr;}
+    }
+    .card{
+      background:var(--warm-white);
+      border-radius:16px;
+      padding:16px;
+      border:1px solid var(--light-saffron);
+      box-shadow:var(--shadow);
+      font-size:13px;
+    }
+    .card h3{
+      font-size:16px;
+      margin-bottom:8px;
+    }
+    .pill-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin-top:8px;
+    }
+    .pill{
+      font-size:11px;
+      padding:4px 8px;
+      border-radius:999px;
+      background:white;
+      border:1px solid #f0e0cf;
+    }
+
+    .temple-list{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+      font-size:13px;
+    }
+    @media(max-width:900px){
+      .temple-list{grid-template-columns:1fr;}
+    }
+    .temple-item{
+      background:white;
+      border-radius:14px;
+      padding:10px 12px;
+      border:1px solid var(--light-saffron);
+    }
+    .temple-name{font-weight:600;margin-bottom:4px;}
+    .temple-meta{font-size:12px;color:#777;margin-bottom:4px;}
+    .temple-open{
+      font-size:11px;
+      color:var(--green);
+      background:#e8f5e9;
+      padding:3px 7px;
+      border-radius:999px;
+      display:inline-block;
+    }
+
+    .footer-banner{
+      margin-top:40px;
+      background:linear-gradient(135deg,#FF6B1A,#D84315);
+      color:white;
+      border-radius:20px;
+      padding:18px 20px;
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:space-between;
+      gap:12px;
+      align-items:center;
+    }
+    .footer-banner p{
+      font-size:13px;
+      max-width:380px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <span class="logo">🛕</span>
+      <span>DevaAI</span>
+    </div>
+    <nav>
+      <a href="#home">ಮುಖಪುಟ</a>
+      <a href="#features">ವೈಶಿಷ್ಟ್ಯಗಳು</a>
+      <a href="#temples">ದೇವಾಲಯಗಳು</a>
+      <a href="#premium">Premium</a>
+    </nav>
+    <button class="btn-primary">ವೆಬ್ ಆಪ್ ತೆರೆಯಿರಿ</button>
+  </header>
+
+  <main id="home">
+    <!-- HERO -->
+    <section class="hero">
+      <div>
+        <h1 class="hero-title">ಕನ್ನಡ ಕುಟುಂಬಗಳಿಗೆ ದಿನನಿತ್ಯದ ಆಧ್ಯಾತ್ಮಿಕ **ಸಂಗಾತಿ**</h1>
+        <p class="hero-sub">
+          ಇಂದಿನ ತಿಥಿ, ನಕ್ಷತ್ರ, ಶ್ಲೋಕ, ಮುಹೂರ್ತ ಮತ್ತು ಮೈಸೂರು–ಕರ್ನಾಟಕದ ದೇವಾಲಯ ಮಾಹಿತಿ – ಒಂದೇ ಸಿಂಪಲ್ ವೆಬ್‌ಸೈಟ್‌ನಲ್ಲಿ.
+        </p>
+
+        <div class="hero-badges">
+          <span class="hero-badge">🌅 ಇಂದಿನ ಪಂಚಾಂಗ</span>
+          <span class="hero-badge">📿 ಇಂದಿನ ಶ್ಲೋಕ</span>
+          <span class="hero-badge">🛕 ನಿಮ್ಮ ಹತ್ತಿರದ ದೇವಾಲಯ</span>
+          <span class="hero-badge">💬 AI ಆಧ್ಯಾತ್ಮಿಕ ಸಹಾಯಕ</span>
+        </div>
+
+        <div class="hero-cta">
+          <button class="btn-primary">ಇಂದೇ ಪ್ರಯೋಗಿಸಿ (Free)</button>
+          <span style="font-size:13px;">ಯಾವುದೇ ಇನ್‌ಸ್ಟಾಲ್ ಬೇಡ, ನೇರವಾಗಿ ಬ್ರೌಸರ್‌ನಲ್ಲಿ.</span>
+        </div>
+        <p class="hero-note">ಕನ್ನಡದಲ್ಲಿ ಶಾಂತ, ಜಾಹೀರಾತು ಕಡಿಮೆ, ಹಿರಿಯರಿಗೆ ಸಹ ಸುಲಭ.</p>
+      </div>
+
+      <!-- RIGHT: WEB PREVIEW CARD -->
+      <div class="hero-right">
+        <div class="mini-status">
+          <span>ಶನಿವಾರ, ೧೪ ಫೆಬ್ರವರಿ ೨೦೨೬</span>
+          <span>ಮೈಸೂರು • 6:48 AM ☀</span>
+        </div>
+        <div class="mini-greeting">
+          ನಮಸ್ಕಾರ Vinod 🙏<br>
+          ಇಂದು ನಿಮ್ಮ ಆಧ್ಯಾತ್ಮಿಕ ಪಯಣವನ್ನು ಶುಭವಾಗಿ ಪ್ರಾರಂಭಿಸೋಣ.
+        </div>
+        <div class="mini-grid">
+          <div class="mini-card">
+            <div class="mini-label">ತಿಥಿ</div>
+            <div class="mini-value">ಚತುರ್ದಶಿ</div>
+          </div>
+          <div class="mini-card">
+            <div class="mini-label">ನಕ್ಷತ್ರ</div>
+            <div class="mini-value">ಪೂರ್ವಾಷಾಢ</div>
+          </div>
+          <div class="mini-card">
+            <div class="mini-label">ರಾಹು ಕಾಲ</div>
+            <div class="mini-value">12:30 – 2:00 PM</div>
+          </div>
+          <div class="mini-card">
+            <div class="mini-label">ಅಭಿಜಿತ್ ಮುಹೂರ್ತ</div>
+            <div class="mini-value">11:48 – 12:36 PM</div>
+          </div>
+        </div>
+        <div class="mini-sloka">
+          <div style="font-weight:600; margin-bottom:4px;">📿 ಇಂದಿನ ಶ್ಲೋಕ</div>
+          <div style="font-size:12px; margin-bottom:4px;">
+            ಓಂ ಭೂರ್ಭುವಃ ಸ್ವಃ<br>
+            ತತ್ಸವಿತುರ್ವರೇಣ್ಯಂ...
+          </div>
+          <div style="font-size:11px;color:#6B4C3A;">
+            ಅರ್ಥ ಕನ್ನಡದಲ್ಲಿ + "ವಿವರವಾಗಿ ತಿಳಿಯಿರಿ" ಕ್ಲಿಕ್ ಮಾಡಿದ್ರೆ AI ವಿವರಣೆ.
+          </div>
+        </div>
+        <div class="mini-temple">
+          <div class="mini-temple-icon">🛕</div>
+          <div>
+            <div style="font-weight:600;">ಇಂದಿನ ವಿಶೇಷ ದರ್ಶನ</div>
+            <div style="font-size:12px;">ಚಾಮುಂಡೇಶ್ವರಿ ದೇವಾಲಯ, ಮೈಸೂರು • ಈಗ ತೆರೆದಿದೆ</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section id="features">
+      <h2 class="section-title">ದಿನನಿತ್ಯ ನೀವು ನೋಡುವ ಮುಖ್ಯ ಫೀಚರ್ಸ್</h2>
+      <p class="section-sub">
+        ಬ್ರೌಸರ್‌ನಲ್ಲಿ ತೆರೆಯುತ್ತಿದ್ದಂತೆ, ಒಂದು ಡ್ಯಾಶ್‌ಬೋರ್ಡ್‌ನಲ್ಲಿ ಎಲ್ಲ ಆಧ್ಯಾತ್ಮಿಕ ಮಾಹಿತಿಯೂ ಸಿಗುತ್ತದೆ.
+      </p>
+
+      <div class="cards-3">
+        <div class="card">
+          <h3>🏠 ದೈನಂದಿನ ಆಧ್ಯಾತ್ಮಿಕ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್</h3>
+          <p>
+            ತಿಥಿ, ನಕ್ಷತ್ರ, ರಾಹು ಕಾಲ, ಸೂರ್ಯೋದಯ–ಸೂರ್ಯಾಸ್ತ, ಇಂದಿನ ಶ್ಲೋಕ – ಬೆಳಗ್ಗೆ ಒಮ್ಮೆ ತೆರೆಯಲು ಸಾಕು.
+          </p>
+          <div class="pill-row">
+            <span class="pill">Kannada UI</span>
+            <span class="pill">ದಿನನಿತ್ಯ ಹ್ಯಾಬಿಟ್</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3>💬 DevaAI ಆಧ್ಯಾತ್ಮಿಕ ಸಹಾಯಕ</h3>
+          <p>
+            “ಏಕಾದಶಿ ಹೇಗೆ?” “ನಂಜನಗೂಡು ಸಮಯ?” – ಪ್ರಶ್ನೆ ಟೈಪ್ ಮಾಡಿ ಅಥವಾ ಮೈಸ್ಕ್ ಐಕಾನ್‌ನಿಂದ ಮಾತನಾಡಿ.
+          </p>
+          <div class="pill-row">
+            <span class="pill">ಸಿಂಪಲ್ ಉತ್ತರ</span>
+            <span class="pill">ಭವಿಷ್ಯ ಹೇಳುವುದಿಲ್ಲ</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3>🛕 ಕರ್ನಾಟಕ ದೇವಾಲಯ ಡೈರೆಕ್ಟರಿ</h3>
+          <p>
+            ಮೈಸೂರು ಇಂದ ಶುರು, ನಂತರ ಉಡುಪಿ, ಬೆಂಗಳೂರು, ತುಮಕೂರು – ಜಿಲ್ಲಾವಾರು ದೇವಾಲಯ ಲಿಸ್ಟಿಂಗ್.
+          </p>
+          <div class="pill-row">
+            <span class="pill">ಟೈಮಿಂಗ್ಸ್</span>
+            <span class="pill">ಮ್ಯಾಪ್ ಲಿಂಕ್</span>
+            <span class="pill">ವಿಶೇಷ ದಿನಗಳು</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TEMPLES SNIPPET -->
+    <section id="temples">
+      <h2 class="section-title">ಉದಾಹರಣೆ: ಮೈಸೂರು ಭಾಗದ ದೇವಾಲಯಗಳು</h2>
+      <p class="section-sub">
+        ವಾಸ್ತವಿಕ ವೆಬ್ ಆಪ್‌ನಲ್ಲಿ ನೀವು ಇಂಥ ಲಿಸ್ಟ್ ನೋಡ್ತೀರಿ – ದೂರ, ಸ್ಥಿತಿ, ಸ್ಥಳ ಎಲ್ಲವೂ ಕನ್ನಡದಲ್ಲೇ.
+      </p>
+      <div class="temple-list">
+        <div class="temple-item">
+          <div class="temple-name">ಚಾಮುಂಡೇಶ್ವರಿ ದೇವಾಲಯ</div>
+          <div class="temple-meta">📍 ಮೈಸೂರು • 3.2 km ದೂರ</div>
+          <span class="temple-open">✓ ಈಗ ತೆರೆದಿದೆ</span>
+        </div>
+        <div class="temple-item">
+          <div class="temple-name">ಶ್ರೀ ರಂಗನಾಥಸ್ವಾಮಿ ದೇವಾಲಯ</div>
+          <div class="temple-meta">📍 ಶ್ರೀರಂಗಪಟ್ಟಣ • 15 km ದೂರ</div>
+          <span class="temple-open">✓ ಈಗ ತೆರೆದಿದೆ</span>
+        </div>
+        <div class="temple-item">
+          <div class="temple-name">ನಂಜನಗೂಡು ಶ್ರೀಕಂಠೇಶ್ವರ</div>
+          <div class="temple-meta">📍 ನಂಜನಗೂಡು • 25 km ದೂರ</div>
+          <span class="temple-open">✓ ಈಗ ತೆರೆದಿದೆ</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- PREMIUM BANNER -->
+    <section id="premium" class="footer-banner">
+      <div>
+        <h3 style="font-size:18px;margin-bottom:6px;">✨ Premium (₹49/ತಿಂಗಳು)</h3>
+        <p>
+          ವೈಯಕ್ತಿಕ ಮುಹೂರ್ತ, ಡೀಟೈಲ್ ಪಂಚಾಂಗ, ಕಸ್ಟಮ್ ಫೆಸ್ಟಿವಲ್ ರಿಮೈಂಡರ್ – ಸಹಜ, ಜಾಹೀರಾತು ಕಡಿಮೆ ಅನುಭವ.
+        </p>
+      </div>
+      <button class="btn-primary">ಶೀಘ್ರದಲ್ಲೇ ಲಾಂಚ್ ಆಗಲಿದೆ</button>
+    </section>
+  </main>
+</body>
+</html>

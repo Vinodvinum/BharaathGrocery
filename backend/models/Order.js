@@ -32,10 +32,21 @@ const orderSchema = new mongoose.Schema({
     required: true,
     min: [0, 'Total cannot be negative']
   },
+  paymentMethod: {
+    type: String,
+    enum: ['COD', 'RAZORPAY'],
+    default: 'COD',
+    required: true
+  },
   paymentStatus: {
     type: String,
     enum: ['pending', 'paid', 'failed', 'refunded'],
     default: 'pending'
+  },
+  paymentDetails: {
+    razorpayOrderId: String,
+    razorpayPaymentId: String,
+    razorpaySignature: String
   },
   status: {
     type: String,
@@ -43,13 +54,33 @@ const orderSchema = new mongoose.Schema({
     default: 'pending'
   },
   shippingAddress: {
-    fullName: String,
-    phone: String,
-    addressLine1: String,
+    fullName: {
+      type: String,
+      required: [true, 'Please provide full name']
+    },
+    phone: {
+      type: String,
+      required: [true, 'Please provide phone number'],
+      match: [/^[0-9]{10}$/, 'Please provide a valid 10-digit phone number']
+    },
+    addressLine1: {
+      type: String,
+      required: [true, 'Please provide address line 1']
+    },
     addressLine2: String,
-    city: String,
-    state: String,
-    pincode: String
+    city: {
+      type: String,
+      required: [true, 'Please provide city']
+    },
+    state: {
+      type: String,
+      required: [true, 'Please provide state']
+    },
+    pincode: {
+      type: String,
+      required: [true, 'Please provide pincode'],
+      match: [/^[0-9]{6}$/, 'Please provide a valid 6-digit pincode']
+    }
   },
   statusHistory: [{
     status: String,

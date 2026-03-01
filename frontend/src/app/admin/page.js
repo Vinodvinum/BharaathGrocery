@@ -107,7 +107,7 @@ export default function AdminDashboard() {
       const [dashboardRes, categoriesRes, productsRes, ordersRes, usersRes] = await Promise.all([
         axios.get(`${apiUrl}/api/admin/dashboard`, { headers: { Authorization: `Bearer ${storedToken}` } }),
         axios.get(`${apiUrl}/api/categories?includeInactive=true`),
-        axios.get(`${apiUrl}/api/products?includeInactive=true&limit=100`, { headers: { Authorization: `Bearer ${storedToken}` } }),
+        axios.get(`${apiUrl}/api/products?includeInactive=true&limit=500`, { headers: { Authorization: `Bearer ${storedToken}` } }),
         axios.get(`${apiUrl}/api/orders`, { headers: { Authorization: `Bearer ${storedToken}` } }),
         axios.get(`${apiUrl}/api/users`, { headers: { Authorization: `Bearer ${storedToken}` } })
       ]);
@@ -509,7 +509,7 @@ export default function AdminDashboard() {
               <h1 className="text-2xl font-bold">Order Management</h1>
               <div className="bg-white rounded-xl shadow overflow-x-auto">
                 <table className="min-w-full text-sm">
-                  <thead className="bg-gray-50"><tr><th className="p-3 text-left">User</th><th className="p-3 text-left">Items</th><th className="p-3 text-left">Total</th><th className="p-3 text-left">Payment</th><th className="p-3 text-left">Order Status</th><th className="p-3 text-left">Updated</th></tr></thead>
+                  <thead className="bg-gray-50"><tr><th className="p-3 text-left">User</th><th className="p-3 text-left">Items</th><th className="p-3 text-left">Total</th><th className="p-3 text-left">Payment</th><th className="p-3 text-left">Method</th><th className="p-3 text-left">Order Status</th><th className="p-3 text-left">Shipping</th><th className="p-3 text-left">Updated</th></tr></thead>
                   <tbody>
                     {orders.map((order) => (
                       <tr key={order._id} className="border-t align-top">
@@ -526,6 +526,11 @@ export default function AdminDashboard() {
                           </select>
                         </td>
                         <td className="p-3">
+                          <span className="inline-block px-2 py-1 rounded bg-amber-100 text-amber-900 text-xs font-medium">
+                            {order.paymentMethod || '-'}
+                          </span>
+                        </td>
+                        <td className="p-3">
                           <select
                             className="border rounded px-2 py-1"
                             value={order.status}
@@ -533,6 +538,18 @@ export default function AdminDashboard() {
                           >
                             {ORDER_STATUSES.map((status) => <option key={status} value={status}>{status}</option>)}
                           </select>
+                        </td>
+                        <td className="p-3 text-xs text-gray-700">
+                          {order.shippingAddress?.fullName ? (
+                            <>
+                              <div className="font-medium">{order.shippingAddress.fullName} ({order.shippingAddress.phone})</div>
+                              <div>
+                                {order.shippingAddress.addressLine1}
+                                {order.shippingAddress.addressLine2 ? `, ${order.shippingAddress.addressLine2}` : ''}
+                              </div>
+                              <div>{order.shippingAddress.city}, {order.shippingAddress.state} - {order.shippingAddress.pincode}</div>
+                            </>
+                          ) : '-'}
                         </td>
                         <td className="p-3 text-gray-600">{formatDate(order.updatedAt || order.createdAt)}</td>
                       </tr>

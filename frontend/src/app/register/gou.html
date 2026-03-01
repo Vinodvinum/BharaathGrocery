@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Kamadenu Goushala – Serve the Cow, Serve the Divine</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Kamadenu Goushala – A humble shelter for rescued desi cows. Support by feeding a cow, donating, or adopting.">
+  <style>
+    :root {
+      --primary: #7A4E2D;
+      --primary-dark: #5b371f;
+      --accent: #4C7A34;
+      --bg: #FFF9F0;
+      --text: #333333;
+      --muted: #777777;
+      --card-bg: #FFFFFF;
+      --border: #E5D5C2;
+      --shadow-soft: 0 6px 18px rgba(0,0,0,0.06);
+      --radius: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    /* Layout */
+
+    .container {
+      width: min(1100px, 100% - 2rem);
+      margin: 0 auto;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(255,249,240,0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #fff, #e0c095);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+    }
+
+    .brand-name {
+      font-family: "Georgia", "Times New Roman", serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--primary-dark);
+    }
+
+    nav ul {
+      display: flex;
+      list-style: none;
+      gap: 1.25rem;
+      font-size: 0.95rem;
+    }
+
+    nav a {
+      position: relative;
+      padding-bottom: 0.25rem;
+    }
+
+    nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 0;
+      height: 2px;
+      background: var(--accent);
+      transition: width 0.2s;
+    }
+
+    nav a:hover::after {
+      width: 100%;
+    }
+
+    .btn-primary,
+    .btn-outline,
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem 1.2rem;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease, color 0.1s ease;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: var(--accent);
+      color: white;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .btn-secondary:hover {
+      background: #365825;
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      border: 1px solid var(--primary);
+      color: var(--primary-dark);
+      background: transparent;
+    }
+
+    .btn-outline:hover {
+      background: var(--primary);
+      color: white;
+      transform: translateY(-1px);
+    }
+
+    main {
+      padding-bottom: 4rem;
+    }
+
+    section {
+      padding: 3.5rem 0;
+      scroll-margin-top: 4.5rem;
+    }
+
+    .section-title {
+      font-family: "Georgia", "Times New Roman", serif;
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+      color: var(--primary-dark);
+    }
+
+    .section-subtitle {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+    }
+
+    /* Hero */
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 2.5rem;
+      align-items: center;
+      padding: 2.5rem 0 1.5rem;
+    }
+
+    .hero-kicker {
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-size: 0.8rem;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+
+    .hero-title {
+      font-family: "Georgia", "Times New Roman", serif;
+      font-size: clamp(2.1rem, 3vw, 2.6rem);
+      line-height: 1.15;
+      margin-bottom: 1rem;
+      color: var(--primary-dark);
+    }
+
+    .hero-text {
+      color: var(--muted);
+      font-size: 0.98rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-note {
+      font-size: 0.86rem;
+      color: var(--muted);
+    }
+
+    .hero-image-wrapper {
+      background: linear-gradient(135deg, #f5e1c5, #fff9f0);
+      border-radius: 1.5rem;
+      padding: 1.25rem;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid #f0dcc2;
+    }
+
+    .hero-image-inner {
+      border-radius: 1.1rem;
+      overflow: hidden;
+      border: 3px solid rgba(255,255,255,0.9);
+      background: url("https://images.pexels.com/photos/7356060/pexels-photo-7356060.jpeg?auto=compress&cs=tinysrgb&w=1200") center/cover no-repeat;
+      height: 260px;
+    }
+
+    .hero-badge {
+      margin-top: 0.75rem;
+      font-size: 0.8rem;
+      color: var(--primary-dark);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(255,255,255,0.9);
+      padding: 0.4rem 0.7rem;
+      border-radius: 999px;
+    }
+
+    /* Highlights */
+
+    .highlights {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .highlight-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 1rem 1.1rem;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .highlight-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .highlight-value {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+    }
+
+    .highlight-note {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 0.25rem;
+    }
+
+    /* Cards and grids */
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.25rem;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.5rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-soft);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-image {
+      height: 170px;
+      overflow: hidden;
+    }
+
+    .card-body {
+      padding: 1rem 1.1rem 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      flex: 1;
+    }
+
+    .card-title {
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--primary-dark);
+    }
+
+    .card-meta {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .card-text {
+      font-size: 0.9rem;
+      color: var(--text);
+      flex: 1;
+    }
+
+    .card-footer {
+      margin-top: 0.6rem;
+    }
+
+    /* About */
+
+    .about-layout {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    .about-block + .about-block {
+      margin-top: 1.5rem;
+    }
+
+    .about-heading {
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      color: var(--primary-dark);
+    }
+
+    .about-gallery {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.6rem;
+    }
+
+    .about-photo {
+      border-radius: 0.9rem;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      height: 110px;
+      background-size: cover;
+      background-position: center;
+    }
+
+    /* Our Cows */
+
+    .cow-meta {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    /* Feed a Cow / Blog listing */
+
+    .blog-tag {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      background: #f5e5d2;
+      color: var(--primary-dark);
+      border-radius: 999px;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.3rem;
+    }
+
+    /* Products */
+
+    .product-price {
+      font-weight: 700;
+      color: var(--accent);
+      margin-top: 0.25rem;
+      font-size: 0.95rem;
+    }
+
+    /* Gallery */
+
+    .filter-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .filter-buttons button {
+      padding: 0.35rem 0.9rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: white;
+      cursor: pointer;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .filter-buttons button.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
+
+    .gallery-item {
+      border-radius: 0.8rem;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      height: 130px;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
+
+    .gallery-item.video::after {
+      content: "▶";
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.8rem;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+    }
+
+    /* Contact */
+
+    .contact-layout {
+      display: grid;
+      grid-template-columns: 1.1fr 1.1fr;
+      gap: 1.75rem;
+    }
+
+    .contact-item {
+      margin-bottom: 0.75rem;
+      font-size: 0.95rem;
+    }
+
+    .contact-label {
+      font-weight: 600;
+      color: var(--primary-dark);
+    }
+
+    .contact-form label {
+      display: block;
+      font-size: 0.85rem;
+      margin-bottom: 0.2rem;
+      color: var(--primary-dark);
+    }
+
+    .contact-form input,
+    .contact-form textarea {
+      width: 100%;
+      padding: 0.5rem 0.6rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--border);
+      font-size: 0.9rem;
+      margin-bottom: 0.75rem;
+      background: #fffdf8;
+    }
+
+    .contact-form textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .map-embed {
+      margin-top: 1rem;
+      border-radius: 0.9rem;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    /* Footer */
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1.5rem 0 2rem;
+      background: #f7ebdd;
+    }
+
+    .footer-layout {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      justify-content: space-between;
+      font-size: 0.85rem;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .footer-links a {
+      color: var(--muted);
+    }
+
+    .footer-small {
+      margin-top: 0.75rem;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    /* Responsive */
+
+    @media (max-width: 900px) {
+      .hero,
+      .about-layout,
+      .contact-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-image-wrapper {
+        order: -1;
+      }
+
+      nav ul {
+        display: none; /* for simplicity; you can build mobile menu later */
+      }
+    }
+
+    @media (max-width: 768px) {
+      .grid-3,
+      .gallery-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .highlights {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 576px) {
+      .grid-3,
+      .gallery-grid,
+      .grid-2,
+      .highlights {
+        grid-template-columns: 1fr;
+      }
+
+      section {
+        padding: 2.5rem 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container nav">
+    <div class="brand">
+      <div class="brand-logo">🐄</div>
+      <div class="brand-name">Kamadenu Goushala</div>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#home">Home</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#our-cows">Our Cows</a></li>
+        <li><a href="#feed-a-cow">Feed a Cow</a></li>
+        <li><a href="#donate">Donate</a></li>
+        <li><a href="#blog">Blog</a></li>
+        <li><a href="#products">Products</a></li>
+        <li><a href="#gallery">Gallery</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- Home -->
+  <section id="home">
+    <div class="container">
+      <div class="hero">
+        <div>
+          <div class="hero-kicker">Serve the Cow, Serve the Divine</div>
+          <h1 class="hero-title">A loving home for rescued desi cows.</h1>
+          <p class="hero-text">
+            Kamadenu Goushala is a humble shelter dedicated to protecting, feeding, and caring for abandoned and injured
+            desi cows. Join us in this seva by feeding a cow, donating, or adopting.
+          </p>
+          <div class="hero-actions">
+            <a href="#donate" class="btn-primary">Donate Now</a>
+            <a href="#feed-a-cow" class="btn-secondary">Feed a Cow</a>
+            <a href="#our-cows" class="btn-outline">Adopt a Cow</a>
+          </div>
+          <p class="hero-note">
+            100% of your support goes towards fodder, medicines, and shelter maintenance.
+          </p>
+        </div>
+        <div class="hero-image-wrapper">
+          <div class="hero-image-inner"></div>
+          <div class="hero-badge">
+            ❤️ Supporting 48+ cows in a safe and peaceful environment
+          </div>
+        </div>
+      </div>
+
+      <div class="highlights">
+        <div class="highlight-card">
+          <div class="highlight-label">Total Cows</div>
+          <div class="highlight-value">48</div>
+          <div class="highlight-note">Including calves and senior cows</div>
+        </div>
+        <div class="highlight-card">
+          <div class="highlight-label">Rescued Cows</div>
+          <div class="highlight-value">32</div>
+          <div class="highlight-note">Saved from slaughter and abandonment</div>
+        </div>
+        <div class="highlight-card">
+          <div class="highlight-label">Monthly Feeding Cost</div>
+          <div class="highlight-value">₹ 85,000</div>
+          <div class="highlight-note">Fodder, hay, medical care, staff</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section id="about">
+    <div class="container">
+      <h2 class="section-title">About Kamadenu Goushala</h2>
+      <p class="section-subtitle">Our story, mission, and the people behind this seva.</p>
+
+      <div class="about-layout">
+        <div>
+          <div class="about-block">
+            <div class="about-heading">Our Story</div>
+            <p>
+              Kamadenu Goushala began as a small shelter for just a few abandoned cows. Over the years, with the blessings
+              of the divine and the support of kind-hearted devotees, it has grown into a loving home for dozens of
+              desi cows, bulls, and calves.
+            </p>
+          </div>
+
+          <div class="about-block">
+            <div class="about-heading">Mission &amp; Vision</div>
+            <p><strong>Mission:</strong> To provide lifelong protection, food, medical care, and respect to every cow that enters our shelter.</p>
+            <p><strong>Vision:</strong> A society where every cow is treated as family, not as a product; where gau-seva becomes a natural part of daily life.</p>
+          </div>
+
+          <div class="about-block">
+            <div class="about-heading">Founder</div>
+            <p>
+              Sri Ramesh Sharma, a devoted gau-bhakta, started Kamadenu Goushala after witnessing the suffering of abandoned cows on city streets.
+              Leaving his corporate job, he dedicated his life completely to gau-seva and rural development.
+            </p>
+          </div>
+        </div>
+
+        <div>
+          <div class="about-gallery">
+            <div class="about-photo" style="background-image:url('https://images.pexels.com/photos/2088528/pexels-photo-2088528.jpeg?auto=compress&cs=tinysrgb&w=800');"></div>
+            <div class="about-photo" style="background-image:url('https://images.pexels.com/photos/7356023/pexels-photo-7356023.jpeg?auto=compress&cs=tinysrgb&w=800');"></div>
+            <div class="about-photo" style="background-image:url('https://images.pexels.com/photos/7356028/pexels-photo-7356028.jpeg?auto=compress&cs=tinysrgb&w=800');"></div>
+            <div class="about-photo" style="background-image:url('https://images.pexels.com/photos/7356021/pexels-photo-7356021.jpeg?auto=compress&cs=tinysrgb&w=800');"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Our Cows -->
+  <section id="our-cows">
+    <div class="container">
+      <h2 class="section-title">Our Cows</h2>
+      <p class="section-subtitle">Meet some of the lovely souls you are helping support.</p>
+
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-image">
+            <img src="https://images.pexels.com/photos/7356062/pexels-photo-7356062.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Cow Ganga">
+          </div>
+          <div class="card-body">
+            <div class="card-title">Ganga</div>
+            <div class="cow-meta">5 years • Rescued from city streets</div>
+            <p class="card-text">
+              Ganga was found injured near a highway and brought to Kamadenu Goushala, where she received medical care and a safe home.
+            </p>
+            <div class="card-footer">
+              <a href="#donate" class="btn-outline">Sponsor Ganga</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-image">
+            <img src="https://images.pexels.com/photos/7356072/pexels-photo-7356072.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Cow Nandi">
+          </div>
+          <div class="card-body">
+            <div class="card-title">Nandi</div>
+            <div class="cow-meta">7 years • Abandoned bull</div>
+            <p class="card-text">
+              Nandi was abandoned after an injury. With proper treatment and rest, he now happily greets every visitor at the gate.
+            </p>
+            <div class="card-footer">
+              <a href="#donate" class="btn-outline">Sponsor Nandi</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-image">
+            <img src="https://images.pexels.com/photos/7356050/pexels-photo-7356050.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Cow Lakshmi">
+          </div>
+          <div class="card-body">
+            <div class="card-title">Lakshmi</div>
+            <div class="cow-meta">3 years • Orphaned calf</div>
+            <p class="card-text">
+              Lakshmi lost her mother at a very young age. Today, she is a playful and affectionate member of our goshala family.
+            </p>
+            <div class="card-footer">
+              <a href="#donate" class="btn-outline">Sponsor Lakshmi</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Later you can add pagination or "View all cows" with dynamic data -->
+    </div>
+  </section>
+
+  <!-- Feed a Cow (Blog Listing) -->
+  <section id="feed-a-cow">
+    <div class="container">
+      <h2 class="section-title">Feed a Cow – Seva Stories</h2>
+      <p class="section-subtitle">
+        Read how your support is changing lives, and offer seva by sponsoring a meal for our cows.
+      </p>
+
+      <div style="margin-bottom: 1.5rem;">
+        <a href="#donate" class="btn-primary">Feed a Cow Now</a>
+      </div>
+
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-image">
+            <img src="https://images.pexels.com/photos/7356071/pexels-photo-7356071.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Rescue story">
+          </div>
+          <div class="card-body">
+            <span class="blog-tag">Rescue Story</span>
+            <div class="card-title">How Ganga Found a New Home</div>
+            <div class="card-meta">12 Feb 2026</div>
+            <p class="card-text">
+              A devotee spotted Ganga limping near the highway and called our team. This is how her journey changed...
+            </p>
+            <div class="card-footer">
+              <a href="#blog" class="btn-outline">Read more</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-image">
+            <img src="https://images.pexels.com/photos/7356059/pexels-photo-7356059.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Festival">
+          </div>
+          <div class="card-body">
+            <span class="blog-tag">Festival</span>
+            <div class="card-title">Gopashtami Celebrations at Kamadenu Goushala</div>
+            <div class="card-meta">05 Nov 2025</div>
+            <p class="card-text">
+              Every year, devotees gather to offer special pujas, decorate the cows, and distribute prasadam...
+            </p>
+            <div class="card-footer">
+              <a href="#blog" class="btn-outline">Read more</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-image">
+            <img src="https://images.pexels.com/photos/7356075/pexels-photo-7356075.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Care tips">
+          </div>
+          <div class="card-body">
+            <span class="blog-tag">Cow Care Tips</span>
+            <div class="card-title">Simple Daily Care for Desi Cows</div>
+            <div class="card-meta">28 Sep 2025</div>
+            <p class="card-text">
+              From feeding patterns to grooming, here are some simple ways to ensure the well-being of desi cows...
+            </p>
+            <div class="card-footer">
+              <a href="#blog" class="btn-outline">Read more</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Donate (simple placeholder section) -->
+  <section id="donate">
+    <div class="container">
+      <h2 class="section-title">Donate &amp; Support Gau Seva</h2>
+      <p class="section-subtitle">
+        Your donation helps us provide daily fodder, medical care, and shelter maintenance for our cows.
+      </p>
+
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-body">
+            <div class="card-title">Feed One Cow for a Day</div>
+            <p class="card-text">
+              Sponsor fodder and basic care for one cow for a single day.
+            </p>
+            <p class="product-price">₹ 150</p>
+            <div class="card-footer">
+              <a href="https://wa.me/910000000000?text=I%20want%20to%20feed%20one%20cow%20for%20a%20day" class="btn-primary">Donate via WhatsApp</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <div class="card-title">Monthly Cow Sponsorship</div>
+            <p class="card-text">
+              Take care of one cow for an entire month including medicines and extra feed.
+            </p>
+            <p class="product-price">₹ 3,000</p>
+            <div class="card-footer">
+              <a href="https://wa.me/910000000000?text=I%20want%20to%20sponsor%20one%20cow%20monthly" class="btn-primary">Sponsor Monthly</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <div class="card-title">General Goshala Support</div>
+            <p class="card-text">
+              Contribute any amount towards land lease, staff salaries, and infrastructure.
+            </p>
+            <p class="product-price">Any Amount</p>
+            <div class="card-footer">
+              <a href="https://wa.me/910000000000?text=I%20want%20to%20support%20Sri%20Goshala" class="btn-primary">Talk to Us</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Later: add UPI QR, bank details, online payment -->
+    </div>
+  </section>
+
+  <!-- Blog (Listing – can share with Feed a Cow content or expand) -->
+  <section id="blog">
+    <div class="container">
+      <h2 class="section-title">Blog &amp; Updates</h2>
+      <p class="section-subtitle">
+        Rescue stories, festival celebrations, cow care tips, and daily life at Kamadenu Goushala.
+      </p>
+
+      <div class="grid-3">
+        <!-- Reuse same style as Feed a Cow; you can duplicate/extend for SEO -->
+        <div class="card">
+          <div class="card-image">
+            <img src="https://images.pexels.com/photos/7356054/pexels-photo-7356054.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Rescue story 2">
+          </div>
+          <div class="card-body">
+            <span class="blog-tag">Rescue Story</span>
+            <div class="card-title">From Streets to Sanctuary</div>
+            <div class="card-meta">10 Jan 2026</div>
+            <p class="card-text">
+              When our team received a late-night call about an injured cow, we rushed to the spot...
+            </p>
+            <div class="card-footer">
+              <a href="#" class="btn-outline">Read full story</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-image">
+            <img src="https://images.pexels.com/photos/7356019/pexels-photo-7356019.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Festival">
+          </div>
+          <div class="card-body">
+            <span class="blog-tag">Festival</span>
+            <div class="card-title">Deepavali with Our Cows</div>
+            <div class="card-meta">01 Nov 2025</div>
+            <p class="card-text">
+              Celebrating Deepavali at a goshala is a special experience – with lamps, rangoli, and cows as family...
+            </p>
+            <div class="card-footer">
+              <a href="#" class="btn-outline">Read full story</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-image">
+            <img src="https://images.pexels.com/photos/7356074/pexels-photo-7356074.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Care tips">
+          </div>
+          <div class="card-body">
+            <span class="blog-tag">Cow Care Tips</span>
+            <div class="card-title">Summer Care for Cows</div>
+            <div class="card-meta">15 May 2025</div>
+            <p class="card-text">
+              As temperatures rise, it is important to ensure proper shade, water, and cooling for cows...
+            </p>
+            <div class="card-footer">
+              <a href="#" class="btn-outline">Read full story</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Products Page -->
+  <section id="products">
+    <div class="container">
+      <h2 class="section-title">Gou Products</h2>
+      <p class="section-subtitle">
+        Support the goshala and bring purity home with these sacred gou-based products.
+      </p>
+
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-image">
+            <img src="https://images.pexels.com/photos/5644258/pexels-photo-5644258.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Cow dung cakes">
+          </div>
+          <div class="card-body">
+            <div class="card-title">Cow Dung Cakes (Gomaya)</div>
+            <p class="card-text">
+              Hand-made dung cakes ideal for homa, havan, and agnihotra with pure desi cow dung.
+            </p>
+            <p class="product-price">₹ 120 / 20 pieces</p>
+            <div class="card-footer">
+              <a href="https://wa.me/910000000000?text=I%20want%20to%20order%20Cow%20Dung%20Cakes" class="btn-secondary">
+                Order on WhatsApp
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-image">
+            <img src="https://images.pexels.com/photos/4199096/pexels-photo-4199096.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Organic manure">
+          </div>
+          <div class="card-body">
+            <div class="card-title">Organic Manure</div>
+            <p class="card-text">
+              Nutrient-rich compost made from cow dung and natural materials for your home garden and farms.
+            </p>
+            <p class="product-price">₹ 250 / 10 kg</p>
+            <div class="card-footer">
+              <a href="https://wa.me/910000000000?text=I%20want%20to%20order%20Organic%20Manure" class="btn-secondary">
+                Order on WhatsApp
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-image">
+            <img src="https://images.pexels.com/photos/7681085/pexels-photo-7681085.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Gomaya diyas">
+          </div>
+          <div class="card-body">
+            <div class="card-title">Gomaya Diyas</div>
+            <p class="card-text">
+              Eco-friendly diyas made from gomaya, perfect for festivals and daily puja.
+            </p>
+            <p class="product-price">₹ 199 / 25 diyas</p>
+            <div class="card-footer">
+              <a href="https://wa.me/910000000000?text=I%20want%20to%20order%20Gomaya%20Diyas" class="btn-secondary">
+                Order on WhatsApp
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Later: add Panchagavya, soaps, etc. -->
+    </div>
+  </section>
+
+  <!-- Gallery -->
+  <section id="gallery">
+    <div class="container">
+      <h2 class="section-title">Gallery</h2>
+      <p class="section-subtitle">
+        Glimpses of daily life, festivals, and special moments at Kamadenu Goushala.
+      </p>
+
+      <div class="filter-buttons">
+        <button class="active">All</button>
+        <button>Photos</button>
+        <button>Videos</button>
+        <button>Events</button>
+      </div>
+
+      <div class="gallery-grid">
+        <div class="gallery-item" style="background-image:url('https://images.pexels.com/photos/7356022/pexels-photo-7356022.jpeg?auto=compress&cs=tinysrgb&w=800');"></div>
+        <div class="gallery-item" style="background-image:url('https://images.pexels.com/photos/7356058/pexels-photo-7356058.jpeg?auto=compress&cs=tinysrgb&w=800');"></div>
+        <div class="gallery-item video" style="background-image:url('https://images.pexels.com/photos/7356061/pexels-photo-7356061.jpeg?auto=compress&cs=tinysrgb&w=800');"></div>
+        <div class="gallery-item" style="background-image:url('https://images.pexels.com/photos/7356027/pexels-photo-7356027.jpeg?auto=compress&cs=tinysrgb&w=800');"></div>
+        <div class="gallery-item" style="background-image:url('https://images.pexels.com/photos/7356034/pexels-photo-7356034.jpeg?auto=compress&cs=tinysrgb&w=800');"></div>
+        <div class="gallery-item video" style="background-image:url('https://images.pexels.com/photos/7356032/pexels-photo-7356032.jpeg?auto=compress&cs=tinysrgb&w=800');"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact">
+    <div class="container">
+      <h2 class="section-title">Contact</h2>
+      <p class="section-subtitle">
+        Visit the goshala, volunteer, or reach out for any seva or queries.
+      </p>
+
+      <div class="contact-layout">
+        <div>
+          <div class="contact-item">
+            <div class="contact-label">Phone</div>
+            <div>+91 90000 00000</div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-label">WhatsApp</div>
+            <div><a href="https://wa.me/910000000000" target="_blank">Click to chat on WhatsApp</a></div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-label">Address</div>
+            <div>
+              Kamadenu Goushala, Village Name,<br>
+              Taluk, District, State – Pincode, India
+            </div>
+          </div>
+
+          <div class="map-embed">
+            <!-- Replace src with your actual Google Maps embed link -->
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3890.7310255270853!2d76.63938027585969!3d12.313236329092104!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3baf6efbbbbbbbb%3ASample!2sGoshala!5e0!3m2!1sen!2sin!4v1700000000000"
+              width="100%" height="220" style="border:0;" allowfullscreen="" loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"></iframe>
+          </div>
+        </div>
+
+        <div>
+          <form class="contact-form">
+            <div>
+              <label for="name">Name</label>
+              <input id="name" type="text" placeholder="Your full name">
+            </div>
+            <div>
+              <label for="phone">Phone</label>
+              <input id="phone" type="tel" placeholder="Your phone number">
+            </div>
+            <div>
+              <label for="email">Email (optional)</label>
+              <input id="email" type="email" placeholder="you@example.com">
+            </div>
+            <div>
+              <label for="message">Message / Seva Interest</label>
+              <textarea id="message" placeholder="How would you like to serve?"></textarea>
+            </div>
+            <button type="button" class="btn-primary">Submit (Demo)</button>
+            <!-- Later: connect to backend / email service -->
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="container footer-layout">
+    <div>
+      <strong></strong>
+      <p class="footer-small">
+        A humble effort to protect and serve desi cows with love, dignity, and devotion.
+      </p>
+      <p class="footer-small">
+        Registered charitable trust. Donations eligible for tax benefits (details to be updated).
+      </p>
+    </div>
+    <div>
+      <div class="footer-links">
+        <a href="#home">Home</a>
+        <a href="#our-cows">Our Cows</a>
+        <a href="#feed-a-cow">Feed a Cow</a>
+        <a href="#products">Products</a>
+        <a href="#contact">Contact</a>
+      </div>
+      <p class="footer-small">
+        © 2026 Kamadenu Goushala. All rights reserved.
+      </p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shree Goshala</title>
+
+<style>
+/* ====== GLOBAL ====== */
+body{
+  margin:0;
+  font-family: Arial, Helvetica, sans-serif;
+  background:#fdfaf4;
+  color:#333;
+}
+
+h1,h2,h3{
+  margin:0 0 10px;
+}
+
+.container{
+  width:90%;
+  max-width:1100px;
+  margin:auto;
+}
+
+/* ====== NAVBAR ====== */
+.navbar{
+  background:#6b8e23;
+  color:white;
+  padding:12px 0;
+  position:sticky;
+  top:0;
+}
+
+.navbar .container{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.navbar a{
+  color:white;
+  text-decoration:none;
+  margin-left:15px;
+  font-weight:bold;
+}
+
+.navbar a:hover{
+  text-decoration:underline;
+}
+
+/* ===== HERO ===== */
+.hero{
+  background:url("https://images.unsplash.com/photo-1598514982845-7b4c9b7f5c14?q=80&w=1400&auto=format&fit=crop") center/cover no-repeat;
+  color:white;
+  text-align:center;
+  padding:120px 20px;
+}
+
+.hero h1{
+  font-size:40px;
+}
+
+.hero p{
+  font-size:18px;
+}
+
+.btn{
+  display:inline-block;
+  padding:12px 20px;
+  margin:10px;
+  background:#ff9800;
+  color:white;
+  text-decoration:none;
+  border-radius:5px;
+  font-weight:bold;
+}
+
+.btn:hover{
+  background:#e68900;
+}
+
+/* ===== SECTIONS ===== */
+.section{
+  padding:50px 0;
+}
+
+.section-title{
+  text-align:center;
+  margin-bottom:30px;
+  color:#6b8e23;
+}
+
+/* ===== CARDS ===== */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:20px;
+}
+
+.card{
+  background:white;
+  border-radius:8px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.1);
+  overflow:hidden;
+}
+
+.card img{
+  width:100%;
+  height:180px;
+  object-fit:cover;
+}
+
+.card-body{
+  padding:15px;
+}
+
+/* ===== STATS ===== */
+.stats{
+  display:flex;
+  justify-content:space-around;
+  text-align:center;
+  flex-wrap:wrap;
+}
+
+.stat{
+  margin:10px;
+}
+
+.stat h2{
+  color:#ff9800;
+}
+
+/* ===== DONATE ===== */
+.donate{
+  background:#fff3e0;
+  text-align:center;
+}
+
+/* ===== FOOTER ===== */
+.footer{
+  background:#333;
+  color:white;
+  text-align:center;
+  padding:20px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:600px){
+.hero h1{
+  font-size:28px;
+}
+}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+  <div class="container">
+    <div><b>🐄 Shree Goshala</b></div>
+    <div>
+      <a href="#about">About</a>
+      <a href="#cows">Our Cows</a>
+      <a href="#donate">Donate</a>
+      <a href="#blog">Blog</a>
+      <a href="#products">Products</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>Protect and Care for Sacred Cows</h1>
+  <p>Join us in feeding, rescuing, and protecting cows</p>
+  <a href="#donate" class="btn">Donate Now</a>
+  <a href="#cows" class="btn">Adopt a Cow</a>
+</div>
+
+<!-- STATS -->
+<div class="section">
+  <div class="container stats">
+    <div class="stat">
+      <h2>120+</h2>
+      <p>Cows Protected</p>
+    </div>
+    <div class="stat">
+      <h2>35</h2>
+      <p>Cows Rescued</p>
+    </div>
+    <div class="stat">
+      <h2>₹80,000</h2>
+      <p>Monthly Expense</p>
+    </div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<div id="about" class="section">
+  <div class="container">
+    <h2 class="section-title">About Our Goshala</h2>
+    <p>
+      Our goshala is dedicated to rescuing and protecting abandoned and injured cows.
+      We provide food, shelter, and medical care with the help of generous donors.
+      Your support helps us continue this sacred mission.
+    </p>
+  </div>
+</div>
+
+<!-- COWS -->
+<div id="cows" class="section">
+  <div class="container">
+    <h2 class="section-title">Our Cows</h2>
+
+    <div class="grid">
+
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1546445317-29f4545e9d53?q=80&w=800">
+        <div class="card-body">
+          <h3>Lakshmi</h3>
+          <p>Age: 7 years<br>Rescued from highway</p>
+          <a href="#donate" class="btn">Sponsor</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1598515214211-89d3c63b2d95?q=80&w=800">
+        <div class="card-body">
+          <h3>Ganga</h3>
+          <p>Age: 5 years<br>Healthy cow</p>
+          <a href="#donate" class="btn">Sponsor</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=800">
+        <div class="card-body">
+          <h3>Nandi</h3>
+          <p>Age: 3 years<br>Calf rescued</p>
+          <a href="#donate" class="btn">Sponsor</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- DONATE -->
+<div id="donate" class="section donate">
+  <div class="container">
+    <h2 class="section-title">Feed a Cow Seva</h2>
+    <p>Select seva and donate</p>
+
+    <a href="#" class="btn">₹51 Feed one cow</a>
+    <a href="#" class="btn">₹501 Feed 10 cows</a>
+    <a href="#" class="btn">₹2001 Feed all cows</a>
+
+  </div>
+</div>
+
+<!-- BLOG -->
+<div id="blog" class="section">
+  <div class="container">
+    <h2 class="section-title">Latest Blog</h2>
+
+    <div class="grid">
+
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1605000797499-95a51c5269ae?q=80&w=800">
+        <div class="card-body">
+          <h3>Rescue of Injured Cow</h3>
+          <p>We rescued an injured cow and provided treatment.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1516467508483-a7212febe31a?q=80&w=800">
+        <div class="card-body">
+          <h3>Festival Feeding Seva</h3>
+          <p>Devotees sponsored feeding seva during festival.</p>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- PRODUCTS -->
+<div id="products" class="section">
+  <div class="container">
+    <h2 class="section-title">Gou Products</h2>
+
+    <div class="grid">
+
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=800">
+        <div class="card-body">
+          <h3>Cow Dung Cakes</h3>
+          <p>Organic and pure</p>
+          <a href="#" class="btn">Order</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1592928302636-c83cf1e1f4a1?q=80&w=800">
+        <div class="card-body">
+          <h3>Organic Fertilizer</h3>
+          <p>Natural manure</p>
+          <a href="#" class="btn">Order</a>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- CONTACT -->
+<div id="contact" class="section">
+  <div class="container">
+    <h2 class="section-title">Contact Us</h2>
+
+    <p>
+      📞 Phone: +91 9000000000<br>
+      📍 Address: Your Goshala Address<br>
+      💬 WhatsApp: <a href="https://wa.me/919000000000">Click here</a>
+    </p>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  © 2026 Shree Goshala | All Rights Reserved
+</div>
+
+</body>
+</html>

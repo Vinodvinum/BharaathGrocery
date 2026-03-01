@@ -1,0 +1,2255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevaAI - Project Generator</title>
+    <style>
+        :root {
+            --color-bg-primary: #0f172a;
+            --color-bg-secondary: #1e293b;
+            --color-bg-tertiary: #334155;
+            --color-text-primary: #f1f5f9;
+            --color-text-secondary: #cbd5e1;
+            --color-accent: #38bdf8;
+            --color-accent-hover: #0ea5e9;
+            --color-success: #10b981;
+            --color-warning: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--color-bg-primary) 0%, var(--color-bg-secondary) 100%);
+            color: var(--color-text-primary);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--color-accent) 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: var(--color-text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .generator-section {
+            background: var(--color-bg-secondary);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--color-bg-tertiary);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .icon {
+            font-size: 1.8rem;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .gen-button {
+            background: var(--color-bg-tertiary);
+            border: 2px solid var(--color-accent);
+            color: var(--color-text-primary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .gen-button:hover {
+            background: var(--color-accent);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(56, 189, 248, 0.3);
+        }
+
+        .gen-button .button-title {
+            font-size: 1.1rem;
+        }
+
+        .gen-button .button-desc {
+            font-size: 0.85rem;
+            color: var(--color-text-secondary);
+            font-weight: normal;
+        }
+
+        .output-area {
+            background: #000;
+            border-radius: 8px;
+            padding: 1.5rem;
+            min-height: 400px;
+            max-height: 600px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #00ff00;
+            border: 1px solid var(--color-accent);
+            display: none;
+        }
+
+        .output-area.active {
+            display: block;
+        }
+
+        .output-area pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .status.loading {
+            background: var(--color-warning);
+            color: #000;
+        }
+
+        .status.success {
+            background: var(--color-success);
+            color: #fff;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .action-btn {
+            background: var(--color-accent);
+            color: var(--color-bg-primary);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: var(--color-accent-hover);
+            transform: scale(1.05);
+        }
+
+        .file-tree {
+            background: var(--color-bg-tertiary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .tree-item {
+            padding: 0.3rem 0;
+            color: var(--color-text-secondary);
+        }
+
+        .tree-folder {
+            color: var(--color-accent);
+            font-weight: 600;
+        }
+
+        .copy-notification {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: var(--color-success);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .copy-notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .button-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="copy-notification" id="copyNotification">✓ Copied to clipboard!</div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🕉 DevaAI - Full Stack Generator</h1>
+            <p>Production-Ready Karnataka Spiritual Companion Platform</p>
+        </div>
+
+        <div class="generator-section">
+            <h2 class="section-title"><span class="icon">🗂</span> Project Structure</h2>
+            <div class="button-grid">
+                <button class="gen-button" onclick="generateStructure()">
+                    <span class="button-title">📁 Folder Structure</span>
+                    <span class="button-desc">Complete backend + frontend architecture</span>
+                </button>
+                <button class="gen-button" onclick="generateEnvFiles()">
+                    <span class="button-title">🔐 Environment Files</span>
+                    <span class="button-desc">.env templates for all services</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="generator-section">
+            <h2 class="section-title"><span class="icon">🗄</span> Database Layer</h2>
+            <div class="button-grid">
+                <button class="gen-button" onclick="generateSchema()">
+                    <span class="button-title">📊 SQL Schema</span>
+                    <span class="button-desc">PostgreSQL tables with indexes</span>
+                </button>
+                <button class="gen-button" onclick="generateModels()">
+                    <span class="button-title">🐍 SQLAlchemy Models</span>
+                    <span class="button-desc">Python ORM models + relationships</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="generator-section">
+            <h2 class="section-title"><span class="icon">⚙️</span> Backend Services</h2>
+            <div class="button-grid">
+                <button class="gen-button" onclick="generateBackendCore()">
+                    <span class="button-title">🚀 FastAPI Core</span>
+                    <span class="button-desc">main.py + config + middleware</span>
+                </button>
+                <button class="gen-button" onclick="generateAuth()">
+                    <span class="button-title">🔒 Authentication</span>
+                    <span class="button-desc">JWT + password hashing + routes</span>
+                </button>
+                <button class="gen-button" onclick="generateAPIs()">
+                    <span class="button-title">🌐 API Routes</span>
+                    <span class="button-desc">All REST endpoints</span>
+                </button>
+                <button class="gen-button" onclick="generateAIService()">
+                    <span class="button-title">🧠 AI Service</span>
+                    <span class="button-desc">OpenAI integration + logging</span>
+                </button>
+                <button class="gen-button" onclick="generatePayment()">
+                    <span class="button-title">💰 Razorpay Module</span>
+                    <span class="button-desc">Subscription + webhook handler</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="generator-section">
+            <h2 class="section-title"><span class="icon">🎨</span> Frontend Components</h2>
+            <div class="button-grid">
+                <button class="gen-button" onclick="generateFrontendCore()">
+                    <span class="button-title">⚛️ Next.js Setup</span>
+                    <span class="button-desc">App router + layout + config</span>
+                </button>
+                <button class="gen-button" onclick="generatePWA()">
+                    <span class="button-title">📱 PWA Config</span>
+                    <span class="button-desc">Manifest + service worker</span>
+                </button>
+                <button class="gen-button" onclick="generatePages()">
+                    <span class="button-title">📄 All Pages</span>
+                    <span class="button-desc">Home, Ask, Temples, Profile</span>
+                </button>
+                <button class="gen-button" onclick="generateAdmin()">
+                    <span class="button-title">🛡 Admin Dashboard</span>
+                    <span class="button-desc">CRUD interface</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="generator-section">
+            <h2 class="section-title"><span class="icon">🚢</span> Deployment</h2>
+            <div class="button-grid">
+                <button class="gen-button" onclick="generateDockerfile()">
+                    <span class="button-title">🐳 Dockerfile</span>
+                    <span class="button-desc">Backend containerization</span>
+                </button>
+                <button class="gen-button" onclick="generateDocs()">
+                    <span class="button-title">📚 Setup Guides</span>
+                    <span class="button-desc">Complete deployment documentation</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="output-area" id="outputArea"></div>
+        <div class="action-buttons" id="actionButtons" style="display: none;">
+            <button class="action-btn" onclick="copyOutput()">📋 Copy Code</button>
+            <button class="action-btn" onclick="downloadOutput()">💾 Download</button>
+            <button class="action-btn" onclick="clearOutput()">🗑 Clear</button>
+        </div>
+    </div>
+
+    <script>
+        const codeSnippets = {
+            structure: `
+# DevaAI - Complete Project Structure
+
+devaai-platform/
+├── backend/
+│   ├── app/
+│   │   ├── __init__.py
+│   │   ├── main.py
+│   │   ├── config.py
+│   │   ├── database.py
+│   │   ├── models/
+│   │   │   ├── __init__.py
+│   │   │   ├── user.py
+│   │   │   ├── temple.py
+│   │   │   ├── business.py
+│   │   │   ├── festival.py
+│   │   │   ├── sloka.py
+│   │   │   └── ai_log.py
+│   │   ├── schemas/
+│   │   │   ├── __init__.py
+│   │   │   ├── user.py
+│   │   │   ├── temple.py
+│   │   │   ├── business.py
+│   │   │   ├── auth.py
+│   │   │   └── chat.py
+│   │   ├── routes/
+│   │   │   ├── __init__.py
+│   │   │   ├── auth.py
+│   │   │   ├── dashboard.py
+│   │   │   ├── temples.py
+│   │   │   ├── chat.py
+│   │   │   ├── payment.py
+│   │   │   └── admin.py
+│   │   ├── services/
+│   │   │   ├── __init__.py
+│   │   │   ├── auth_service.py
+│   │   │   ├── ai_service.py
+│   │   │   ├── payment_service.py
+│   │   │   └── panchanga_service.py
+│   │   ├── middleware/
+│   │   │   ├── __init__.py
+│   │   │   ├── auth_middleware.py
+│   │   │   └── rate_limit.py
+│   │   └── utils/
+│   │       ├── __init__.py
+│   │       ├── security.py
+│   │       └── helpers.py
+│   ├── alembic/
+│   │   ├── versions/
+│   │   ├── env.py
+│   │   └── alembic.ini
+│   ├── tests/
+│   ├── requirements.txt
+│   ├── Dockerfile
+│   └── .env.example
+├── frontend/
+│   ├── app/
+│   │   ├── layout.tsx
+│   │   ├── page.tsx
+│   │   ├── (tabs)/
+│   │   │   ├── home/
+│   │   │   │   └── page.tsx
+│   │   │   ├── ask/
+│   │   │   │   └── page.tsx
+│   │   │   ├── temples/
+│   │   │   │   ├── page.tsx
+│   │   │   │   └── [id]/
+│   │   │   │       └── page.tsx
+│   │   │   └── profile/
+│   │   │       └── page.tsx
+│   │   ├── admin/
+│   │   │   ├── layout.tsx
+│   │   │   ├── page.tsx
+│   │   │   ├── temples/
+│   │   │   ├── businesses/
+│   │   │   ├── festivals/
+│   │   │   └── slokas/
+│   │   └── api/
+│   ├── components/
+│   │   ├── ui/
+│   │   │   ├── Button.tsx
+│   │   │   ├── Card.tsx
+│   │   │   ├── Input.tsx
+│   │   │   └── Modal.tsx
+│   │   ├── layout/
+│   │   │   ├── BottomNav.tsx
+│   │   │   └── Header.tsx
+│   │   ├── home/
+│   │   │   ├── PanchangaCard.tsx
+│   │   │   ├── SlokaCard.tsx
+│   │   │   └── TempleCard.tsx
+│   │   ├── chat/
+│   │   │   ├── ChatInterface.tsx
+│   │   │   └── MessageBubble.tsx
+│   │   └── admin/
+│   │       ├── TempleForm.tsx
+│   │       ├── BusinessForm.tsx
+│   │       └── DataTable.tsx
+│   ├── lib/
+│   │   ├── api.ts
+│   │   ├── auth.ts
+│   │   └── utils.ts
+│   ├── public/
+│   │   ├── manifest.json
+│   │   ├── icons/
+│   │   └── sw.js
+│   ├── styles/
+│   │   └── globals.css
+│   ├── types/
+│   │   └── index.ts
+│   ├── package.json
+│   ├── tsconfig.json
+│   ├── tailwind.config.ts
+│   ├── next.config.js
+│   └── .env.local.example
+├── docs/
+│   ├── setup.md
+│   ├── deployment.md
+│   ├── api-documentation.md
+│   └── architecture.md
+└── README.md
+`,
+            schema: `
+-- DevaAI PostgreSQL Schema
+-- Production-ready with indexes and constraints
+
+-- Enable UUID extension
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- USERS TABLE
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    phone VARCHAR(15) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    preferred_language VARCHAR(10) DEFAULT 'kn',
+    preferred_deity VARCHAR(50),
+    birth_nakshatra VARCHAR(50),
+    district VARCHAR(50),
+    is_premium BOOLEAN DEFAULT FALSE,
+    is_admin BOOLEAN DEFAULT FALSE,
+    premium_expiry TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_phone ON users(phone);
+CREATE INDEX idx_users_premium ON users(is_premium);
+
+-- TEMPLES TABLE
+CREATE TABLE temples (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(200) NOT NULL,
+    state VARCHAR(50) DEFAULT 'Karnataka',
+    district VARCHAR(50) NOT NULL,
+    deity VARCHAR(100) NOT NULL,
+    description TEXT,
+    opening_time TIME,
+    closing_time TIME,
+    address TEXT,
+    latitude DECIMAL(10, 8),
+    longitude DECIMAL(11, 8),
+    image_url VARCHAR(500),
+    is_featured BOOLEAN DEFAULT FALSE,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_temples_district ON temples(district);
+CREATE INDEX idx_temples_deity ON temples(deity);
+CREATE INDEX idx_temples_featured ON temples(is_featured);
+CREATE INDEX idx_temples_location ON temples(latitude, longitude);
+
+-- BUSINESS_LISTINGS TABLE
+CREATE TABLE business_listings (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    temple_id UUID REFERENCES temples(id) ON DELETE CASCADE,
+    shop_name VARCHAR(200) NOT NULL,
+    owner_name VARCHAR(100) NOT NULL,
+    phone VARCHAR(15) NOT NULL,
+    address TEXT,
+    business_type VARCHAR(50),
+    description TEXT,
+    is_premium BOOLEAN DEFAULT FALSE,
+    expiry_date DATE,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_business_temple ON business_listings(temple_id);
+CREATE INDEX idx_business_premium ON business_listings(is_premium);
+CREATE INDEX idx_business_expiry ON business_listings(expiry_date);
+
+-- FESTIVALS TABLE
+CREATE TABLE festivals (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(200) NOT NULL,
+    date DATE NOT NULL,
+    state VARCHAR(50) DEFAULT 'Karnataka',
+    district VARCHAR(50),
+    associated_deity VARCHAR(100),
+    description TEXT,
+    notification_sent BOOLEAN DEFAULT FALSE,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_festivals_date ON festivals(date);
+CREATE INDEX idx_festivals_district ON festivals(district);
+CREATE INDEX idx_festivals_notification ON festivals(notification_sent);
+
+-- SLOKAS TABLE
+CREATE TABLE slokas (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    sloka_text TEXT NOT NULL,
+    meaning TEXT NOT NULL,
+    deity_tag VARCHAR(50),
+    language VARCHAR(10) DEFAULT 'kn',
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_slokas_deity ON slokas(deity_tag);
+CREATE INDEX idx_slokas_active ON slokas(is_active);
+
+-- AI_LOGS TABLE
+CREATE TABLE ai_logs (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    question TEXT NOT NULL,
+    response TEXT NOT NULL,
+    tokens_used INTEGER,
+    model_version VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_ai_logs_user ON ai_logs(user_id);
+CREATE INDEX idx_ai_logs_created ON ai_logs(created_at);
+
+-- SUBSCRIPTION_TRANSACTIONS TABLE
+CREATE TABLE subscription_transactions (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    razorpay_order_id VARCHAR(100) UNIQUE,
+    razorpay_payment_id VARCHAR(100),
+    razorpay_subscription_id VARCHAR(100),
+    amount DECIMAL(10, 2) NOT NULL,
+    currency VARCHAR(3) DEFAULT 'INR',
+    status VARCHAR(20) DEFAULT 'created',
+    plan_duration INTEGER,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    completed_at TIMESTAMP
+);
+
+CREATE INDEX idx_transactions_user ON subscription_transactions(user_id);
+CREATE INDEX idx_transactions_order ON subscription_transactions(razorpay_order_id);
+CREATE INDEX idx_transactions_status ON subscription_transactions(status);
+
+-- Trigger for updated_at timestamp
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
+FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_temples_updated_at BEFORE UPDATE ON temples
+FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_business_updated_at BEFORE UPDATE ON business_listings
+FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+`,
+            models: `
+# app/models/user.py
+from sqlalchemy import Column, String, Boolean, DateTime, TIMESTAMP
+from sqlalchemy.dialects.postgresql import UUID
+from datetime import datetime
+import uuid
+from app.database import Base
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    name = Column(String(100), nullable=False)
+    email = Column(String(255), unique=True, nullable=False, index=True)
+    phone = Column(String(15), unique=True, nullable=False, index=True)
+    password_hash = Column(String(255), nullable=False)
+    preferred_language = Column(String(10), default='kn')
+    preferred_deity = Column(String(50))
+    birth_nakshatra = Column(String(50))
+    district = Column(String(50))
+    is_premium = Column(Boolean, default=False, index=True)
+    is_admin = Column(Boolean, default=False)
+    premium_expiry = Column(TIMESTAMP, nullable=True)
+    created_at = Column(TIMESTAMP, default=datetime.utcnow)
+    updated_at = Column(TIMESTAMP, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+# app/models/temple.py
+from sqlalchemy import Column, String, Boolean, DateTime, Time, Text, DECIMAL, TIMESTAMP
+from sqlalchemy.dialects.postgresql import UUID
+from datetime import datetime
+import uuid
+from app.database import Base
+
+class Temple(Base):
+    __tablename__ = "temples"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    name = Column(String(200), nullable=False)
+    state = Column(String(50), default='Karnataka')
+    district = Column(String(50), nullable=False, index=True)
+    deity = Column(String(100), nullable=False, index=True)
+    description = Column(Text)
+    opening_time = Column(Time)
+    closing_time = Column(Time)
+    address = Column(Text)
+    latitude = Column(DECIMAL(10, 8))
+    longitude = Column(DECIMAL(11, 8))
+    image_url = Column(String(500))
+    is_featured = Column(Boolean, default=False, index=True)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(TIMESTAMP, default=datetime.utcnow)
+    updated_at = Column(TIMESTAMP, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+# app/models/business.py
+from sqlalchemy import Column, String, Boolean, Date, Text, ForeignKey, TIMESTAMP
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
+from datetime import datetime
+import uuid
+from app.database import Base
+
+class BusinessListing(Base):
+    __tablename__ = "business_listings"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    temple_id = Column(UUID(as_uuid=True), ForeignKey('temples.id', ondelete='CASCADE'), index=True)
+    shop_name = Column(String(200), nullable=False)
+    owner_name = Column(String(100), nullable=False)
+    phone = Column(String(15), nullable=False)
+    address = Column(Text)
+    business_type = Column(String(50))
+    description = Column(Text)
+    is_premium = Column(Boolean, default=False, index=True)
+    expiry_date = Column(Date, index=True)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(TIMESTAMP, default=datetime.utcnow)
+    updated_at = Column(TIMESTAMP, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+# app/models/festival.py
+from sqlalchemy import Column, String, Boolean, Date, Text, TIMESTAMP
+from sqlalchemy.dialects.postgresql import UUID
+from datetime import datetime
+import uuid
+from app.database import Base
+
+class Festival(Base):
+    __tablename__ = "festivals"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    name = Column(String(200), nullable=False)
+    date = Column(Date, nullable=False, index=True)
+    state = Column(String(50), default='Karnataka')
+    district = Column(String(50), index=True)
+    associated_deity = Column(String(100))
+    description = Column(Text)
+    notification_sent = Column(Boolean, default=False, index=True)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(TIMESTAMP, default=datetime.utcnow)
+
+# app/models/sloka.py
+from sqlalchemy import Column, String, Boolean, Text, TIMESTAMP
+from sqlalchemy.dialects.postgresql import UUID
+from datetime import datetime
+import uuid
+from app.database import Base
+
+class Sloka(Base):
+    __tablename__ = "slokas"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    sloka_text = Column(Text, nullable=False)
+    meaning = Column(Text, nullable=False)
+    deity_tag = Column(String(50), index=True)
+    language = Column(String(10), default='kn')
+    is_active = Column(Boolean, default=True, index=True)
+    created_at = Column(TIMESTAMP, default=datetime.utcnow)
+
+# app/models/ai_log.py
+from sqlalchemy import Column, String, Integer, Text, ForeignKey, TIMESTAMP
+from sqlalchemy.dialects.postgresql import UUID
+from datetime import datetime
+import uuid
+from app.database import Base
+
+class AILog(Base):
+    __tablename__ = "ai_logs"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey('users.id', ondelete='CASCADE'), index=True)
+    question = Column(Text, nullable=False)
+    response = Column(Text, nullable=False)
+    tokens_used = Column(Integer)
+    model_version = Column(String(50))
+    created_at = Column(TIMESTAMP, default=datetime.utcnow, index=True)
+`,
+            backendCore: `
+# app/main.py
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from app.config import settings
+from app.database import engine, Base
+from app.routes import auth, dashboard, temples, chat, payment, admin
+
+# Create tables
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI(
+    title="DevaAI API",
+    description="Karnataka Spiritual Companion Backend",
+    version="1.0.0"
+)
+
+# CORS configuration
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.ALLOWED_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Include routers
+app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
+app.include_router(dashboard.router, prefix="/api/dashboard", tags=["Dashboard"])
+app.include_router(temples.router, prefix="/api/temples", tags=["Temples"])
+app.include_router(chat.router, prefix="/api/chat", tags=["AI Chat"])
+app.include_router(payment.router, prefix="/api/payment", tags=["Payment"])
+app.include_router(admin.router, prefix="/api/admin", tags=["Admin"])
+
+@app.get("/")
+def root():
+    return {"message": "DevaAI API", "version": "1.0.0", "status": "active"}
+
+@app.get("/health")
+def health_check():
+    return {"status": "healthy"}
+
+# app/config.py
+from pydantic_settings import BaseSettings
+from typing import List
+
+class Settings(BaseSettings):
+    # Database
+    DATABASE_URL: str
+    
+    # JWT
+    SECRET_KEY: str
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
+    
+    # OpenAI
+    OPENAI_API_KEY: str
+    OPENAI_MODEL: str = "gpt-4o-mini"
+    
+    # Razorpay
+    RAZORPAY_KEY_ID: str
+    RAZORPAY_KEY_SECRET: str
+    RAZORPAY_WEBHOOK_SECRET: str
+    
+    # CORS
+    ALLOWED_ORIGINS: List[str] = ["http://localhost:3000", "https://devaai.vercel.app"]
+    
+    # Rate Limiting
+    RATE_LIMIT_PER_MINUTE: int = 10
+    
+    class Config:
+        env_file = ".env"
+
+settings = Settings()
+
+# app/database.py
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from app.config import settings
+
+engine = create_engine(settings.DATABASE_URL, pool_pre_ping=True)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+`,
+            auth: `
+# app/services/auth_service.py
+from datetime import datetime, timedelta
+from jose import JWTError, jwt
+from passlib.context import CryptContext
+from app.config import settings
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)
+
+def get_password_hash(password: str) -> str:
+    return pwd_context.hash(password)
+
+def create_access_token(data: dict) -> str:
+    to_encode = data.copy()
+    expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    return encoded_jwt
+
+def decode_access_token(token: str):
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        return payload
+    except JWTError:
+        return None
+
+# app/middleware/auth_middleware.py
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from sqlalchemy.orm import Session
+from app.database import get_db
+from app.models.user import User
+from app.services.auth_service import decode_access_token
+
+security = HTTPBearer()
+
+def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: Session = Depends(get_db)
+) -> User:
+    token = credentials.credentials
+    payload = decode_access_token(token)
+    
+    if payload is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials"
+        )
+    
+    user_id = payload.get("sub")
+    if user_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token payload"
+        )
+    
+    user = db.query(User).filter(User.id == user_id).first()
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found"
+        )
+    
+    return user
+
+def get_admin_user(current_user: User = Depends(get_current_user)) -> User:
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
+    return current_user
+
+# app/routes/auth.py
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from app.database import get_db
+from app.models.user import User
+from app.schemas.auth import UserRegister, UserLogin, Token
+from app.services.auth_service import verify_password, get_password_hash, create_access_token
+
+router = APIRouter()
+
+@router.post("/register", response_model=Token)
+def register(user_data: UserRegister, db: Session = Depends(get_db)):
+    # Check if user exists
+    existing_user = db.query(User).filter(
+        (User.email == user_data.email) | (User.phone == user_data.phone)
+    ).first()
+    
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User with this email or phone already exists"
+        )
+    
+    # Create new user
+    new_user = User(
+        name=user_data.name,
+        email=user_data.email,
+        phone=user_data.phone,
+        password_hash=get_password_hash(user_data.password),
+        preferred_language=user_data.preferred_language,
+        district=user_data.district
+    )
+    
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    
+    # Generate token
+    access_token = create_access_token(data={"sub": str(new_user.id)})
+    
+    return {"access_token": access_token, "token_type": "bearer"}
+
+@router.post("/login", response_model=Token)
+def login(credentials: UserLogin, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == credentials.email).first()
+    
+    if not user or not verify_password(credentials.password, user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password"
+        )
+    
+    access_token = create_access_token(data={"sub": str(user.id)})
+    
+    return {"access_token": access_token, "token_type": "bearer"}
+
+# app/schemas/auth.py
+from pydantic import BaseModel, EmailStr
+
+class UserRegister(BaseModel):
+    name: str
+    email: EmailStr
+    phone: str
+    password: str
+    preferred_language: str = "kn"
+    district: str
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+`,
+            aiService: `
+# app/services/ai_service.py
+from openai import OpenAI
+from app.config import settings
+from app.models.ai_log import AILog
+from sqlalchemy.orm import Session
+import uuid
+
+client = OpenAI(api_key=settings.OPENAI_API_KEY)
+
+SYSTEM_PROMPT = """ನೀವು ದೇವ AI - ಕರ್ನಾಟಕದ ಆಧ್ಯಾತ್ಮಿಕ ಸಹಾಯಕ.
+
+**ನಿಯಮಗಳು:**
+1. ಯಾವಾಗಲೂ ಸರಳ ಮತ್ತು ಗೌರವಯುತ ಕನ್ನಡದಲ್ಲಿ ಉತ್ತರಿಸಿ
+2. ಭವಿಷ್ಯ ಹೇಳಬೇಡಿ (ಜ್ಯೋತಿಷ್ಯ, ಮುಂದಿನ ಘಟನೆಗಳು)
+3. ವೈದ್ಯಕೀಯ, ಕಾನೂನು, ಅಥವಾ ಹಣಕಾಸಿನ ಸಲಹೆ ನೀಡಬೇಡಿ
+4. 150 ಪದಗಳಿಗಿಂತ ಕಡಿಮೆ ಉತ್ತರ ನೀಡಿ
+5. ನಿಮಗೆ ಖಚಿತವಾಗಿಲ್ಲದಿದ್ದರೆ, ವಿನಮ್ರವಾಗಿ ಹೇಳಿ
+
+**ನೀವು ಸಹಾಯ ಮಾಡಬಹುದು:**
+- ದೇವಾಲಯಗಳು, ದೇವರುಗಳು, ಹಬ್ಬಗಳ ಬಗ್ಗೆ
+- ಪೂಜೆ ವಿಧಾನಗಳು
+- ಶ್ಲೋಕಗಳ ಅರ್ಥ
+- ಆಧ್ಯಾತ್ಮಿಕ ಪ್ರಶ್ನೆಗಳು
+- ಕರ್ನಾಟಕದ ಸಂಸ್ಕೃತಿ
+
+ನಿಮ್ಮ ಉತ್ತರ ಸ್ಪಷ್ಟ, ಸಹಾಯಕ ಮತ್ತು ಸಂಸ್ಕೃತಿಗೆ ಗೌರವಯುತವಾಗಿರಲಿ."""
+
+async def get_ai_response(user_id: uuid.UUID, question: str, db: Session) -> dict:
+    try:
+        response = client.chat.completions.create(
+            model=settings.OPENAI_MODEL,
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": question}
+            ],
+            max_tokens=300,
+            temperature=0.7
+        )
+        
+        answer = response.choices[0].message.content
+        tokens_used = response.usage.total_tokens
+        
+        # Log to database
+        log_entry = AILog(
+            user_id=user_id,
+            question=question,
+            response=answer,
+            tokens_used=tokens_used,
+            model_version=settings.OPENAI_MODEL
+        )
+        db.add(log_entry)
+        db.commit()
+        
+        return {
+            "response": answer,
+            "tokens_used": tokens_used
+        }
+    
+    except Exception as e:
+        raise Exception(f"AI service error: {str(e)}")
+
+# app/routes/chat.py
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from app.database import get_db
+from app.models.user import User
+from app.middleware.auth_middleware import get_current_user
+from app.services.ai_service import get_ai_response
+from pydantic import BaseModel
+
+router = APIRouter()
+
+class ChatRequest(BaseModel):
+    question: str
+
+class ChatResponse(BaseModel):
+    response: str
+    tokens_used: int
+
+@router.post("/", response_model=ChatResponse)
+async def chat(
+    request: ChatRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if not request.question or len(request.question.strip()) == 0:
+        raise HTTPException(status_code=400, detail="Question cannot be empty")
+    
+    if len(request.question) > 500:
+        raise HTTPException(status_code=400, detail="Question too long (max 500 characters)")
+    
+    try:
+        result = await get_ai_response(current_user.id, request.question, db)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+`,
+            payment: `
+# app/services/payment_service.py
+import razorpay
+from app.config import settings
+from datetime import datetime, timedelta
+
+razorpay_client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+
+def create_subscription_order(amount: int, user_id: str):
+    order_data = {
+        "amount": amount * 100,  # Amount in paise
+        "currency": "INR",
+        "receipt": f"order_{user_id}_{int(datetime.utcnow().timestamp())}",
+        "notes": {
+            "user_id": user_id,
+            "plan_type": "premium"
+        }
+    }
+    
+    order = razorpay_client.order.create(data=order_data)
+    return order
+
+def verify_payment_signature(order_id: str, payment_id: str, signature: str) -> bool:
+    try:
+        razorpay_client.utility.verify_payment_signature({
+            'razorpay_order_id': order_id,
+            'razorpay_payment_id': payment_id,
+            'razorpay_signature': signature
+        })
+        return True
+    except:
+        return False
+
+# app/routes/payment.py
+from fastapi import APIRouter, Depends, HTTPException, status, Request
+from sqlalchemy.orm import Session
+from app.database import get_db
+from app.models.user import User
+from app.middleware.auth_middleware import get_current_user
+from app.services.payment_service import create_subscription_order, verify_payment_signature
+from pydantic import BaseModel
+from datetime import datetime, timedelta
+import hmac
+import hashlib
+
+router = APIRouter()
+
+class CreateOrderRequest(BaseModel):
+    amount: int  # Amount in rupees
+    plan_duration: int  # Duration in months
+
+class CreateOrderResponse(BaseModel):
+    order_id: str
+    amount: int
+    currency: str
+    key_id: str
+
+class VerifyPaymentRequest(BaseModel):
+    order_id: str
+    payment_id: str
+    signature: str
+
+@router.post("/create-order", response_model=CreateOrderResponse)
+def create_order(
+    request: CreateOrderRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    try:
+        order = create_subscription_order(request.amount, str(current_user.id))
+        
+        return {
+            "order_id": order['id'],
+            "amount": order['amount'],
+            "currency": order['currency'],
+            "key_id": settings.RAZORPAY_KEY_ID
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/verify-payment")
+def verify_payment(
+    request: VerifyPaymentRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    is_valid = verify_payment_signature(
+        request.order_id,
+        request.payment_id,
+        request.signature
+    )
+    
+    if not is_valid:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid payment signature"
+        )
+    
+    # Update user to premium
+    current_user.is_premium = True
+    current_user.premium_expiry = datetime.utcnow() + timedelta(days=30)
+    db.commit()
+    
+    return {"status": "success", "message": "Payment verified and premium activated"}
+
+@router.post("/webhook")
+async def payment_webhook(request: Request, db: Session = Depends(get_db)):
+    payload = await request.body()
+    signature = request.headers.get("X-Razorpay-Signature")
+    
+    # Verify webhook signature
+    expected_signature = hmac.new(
+        settings.RAZORPAY_WEBHOOK_SECRET.encode(),
+        payload,
+        hashlib.sha256
+    ).hexdigest()
+    
+    if signature != expected_signature:
+        raise HTTPException(status_code=400, detail="Invalid webhook signature")
+    
+    # Process webhook event
+    # Log and handle subscription events
+    
+    return {"status": "received"}
+`,
+            apis: `
+# app/routes/dashboard.py
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from app.database import get_db
+from app.models.user import User
+from app.models.sloka import Sloka
+from app.models.temple import Temple
+from app.middleware.auth_middleware import get_current_user
+from pydantic import BaseModel
+from datetime import datetime
+import random
+
+router = APIRouter()
+
+class PanchangaData(BaseModel):
+    date: str
+    tithi: str
+    nakshatra: str
+    yoga: str
+    karana: str
+
+class DashboardResponse(BaseModel):
+    greeting: str
+    panchanga: PanchangaData
+    sloka: dict
+    suggested_temple: dict
+
+@router.get("/daily-summary", response_model=DashboardResponse)
+def get_daily_summary(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    # Panchanga data (simplified - integrate real panchanga API)
+    panchanga = PanchangaData(
+        date=datetime.utcnow().strftime("%Y-%m-%d"),
+        tithi="ಪಾಡ್ಯಮಿ",
+        nakshatra="ಅಶ್ವಿನಿ",
+        yoga="ವಿಷ್ಕಂಭ",
+        karana="ಬವ"
+    )
+    
+    # Random sloka
+    sloka = db.query(Sloka).filter(Sloka.is_active == True).order_by(func.random()).first()
+    sloka_data = {
+        "text": sloka.sloka_text if sloka else "",
+        "meaning": sloka.meaning if sloka else ""
+    }
+    
+    # Suggested temple
+    temple = db.query(Temple).filter(
+        Temple.district == current_user.district,
+        Temple.is_active == True
+    ).order_by(func.random()).first()
+    
+    temple_data = {
+        "id": str(temple.id) if temple else None,
+        "name": temple.name if temple else "",
+        "deity": temple.deity if temple else ""
+    }
+    
+    greeting = f"ನಮಸ್ಕಾರ {current_user.name}"
+    
+    return {
+        "greeting": greeting,
+        "panchanga": panchanga,
+        "sloka": sloka_data,
+        "suggested_temple": temple_data
+    }
+
+# app/routes/temples.py
+from fastapi import APIRouter, Depends, Query
+from sqlalchemy.orm import Session
+from sqlalchemy import func
+from app.database import get_db
+from app.models.temple import Temple
+from app.models.business import BusinessListing
+from typing import List, Optional
+from pydantic import BaseModel
+import uuid
+
+router = APIRouter()
+
+class TempleListResponse(BaseModel):
+    id: str
+    name: str
+    district: str
+    deity: str
+    is_featured: bool
+
+class TempleDetailResponse(BaseModel):
+    id: str
+    name: str
+    district: str
+    deity: str
+    description: str
+    opening_time: str
+    closing_time: str
+    address: str
+    latitude: float
+    longitude: float
+    image_url: str
+
+class BusinessListingResponse(BaseModel):
+    id: str
+    shop_name: str
+    owner_name: str
+    phone: str
+    business_type: str
+    is_premium: bool
+
+@router.get("/", response_model=List[TempleListResponse])
+def get_temples(
+    district: Optional[str] = None,
+    deity: Optional[str] = None,
+    featured: Optional[bool] = None,
+    skip: int = 0,
+    limit: int = 20,
+    db: Session = Depends(get_db)
+):
+    query = db.query(Temple).filter(Temple.is_active == True)
+    
+    if district:
+        query = query.filter(Temple.district == district)
+    if deity:
+        query = query.filter(Temple.deity.ilike(f"%{deity}%"))
+    if featured is not None:
+        query = query.filter(Temple.is_featured == featured)
+    
+    temples = query.offset(skip).limit(limit).all()
+    
+    return [
+        {
+            "id": str(t.id),
+            "name": t.name,
+            "district": t.district,
+            "deity": t.deity,
+            "is_featured": t.is_featured
+        }
+        for t in temples
+    ]
+
+@router.get("/{temple_id}", response_model=TempleDetailResponse)
+def get_temple(temple_id: uuid.UUID, db: Session = Depends(get_db)):
+    temple = db.query(Temple).filter(Temple.id == temple_id).first()
+    
+    if not temple:
+        raise HTTPException(status_code=404, detail="Temple not found")
+    
+    return {
+        "id": str(temple.id),
+        "name": temple.name,
+        "district": temple.district,
+        "deity": temple.deity,
+        "description": temple.description,
+        "opening_time": str(temple.opening_time) if temple.opening_time else "",
+        "closing_time": str(temple.closing_time) if temple.closing_time else "",
+        "address": temple.address or "",
+        "latitude": float(temple.latitude) if temple.latitude else 0.0,
+        "longitude": float(temple.longitude) if temple.longitude else 0.0,
+        "image_url": temple.image_url or ""
+    }
+
+@router.get("/{temple_id}/shops", response_model=List[BusinessListingResponse])
+def get_temple_shops(temple_id: uuid.UUID, db: Session = Depends(get_db)):
+    businesses = db.query(BusinessListing).filter(
+        BusinessListing.temple_id == temple_id,
+        BusinessListing.is_active == True
+    ).all()
+    
+    return [
+        {
+            "id": str(b.id),
+            "shop_name": b.shop_name,
+            "owner_name": b.owner_name,
+            "phone": b.phone,
+            "business_type": b.business_type or "",
+            "is_premium": b.is_premium
+        }
+        for b in businesses
+    ]
+`,
+            envFiles: `
+# backend/.env.example
+# Database
+DATABASE_URL=postgresql://user:password@localhost:5432/devaai_db
+
+# JWT Secret
+SECRET_KEY=your-secret-key-here-change-in-production
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=10080
+
+# OpenAI
+OPENAI_API_KEY=sk-your-openai-api-key-here
+
+# Razorpay
+RAZORPAY_KEY_ID=rzp_test_your_key_id
+RAZORPAY_KEY_SECRET=your_razorpay_secret
+RAZORPAY_WEBHOOK_SECRET=your_webhook_secret
+
+# CORS
+ALLOWED_ORIGINS=["http://localhost:3000","https://devaai.vercel.app"]
+
+# Rate Limiting
+RATE_LIMIT_PER_MINUTE=10
+
+# frontend/.env.local.example
+NEXT_PUBLIC_API_URL=http://localhost:8000/api
+NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_test_your_key_id
+NEXT_PUBLIC_APP_NAME=DevaAI
+NEXT_PUBLIC_APP_URL=https://devaai.vercel.app
+
+# backend/requirements.txt
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+sqlalchemy==2.0.25
+psycopg2-binary==2.9.9
+alembic==1.13.1
+pydantic==2.5.3
+pydantic-settings==2.1.0
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.6
+openai==1.10.0
+razorpay==1.4.1
+python-dotenv==1.0.0
+`,
+            dockerfile: `
+# backend/Dockerfile
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \\
+    gcc \\
+    postgresql-client \\
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY . .
+
+# Expose port
+EXPOSE 8000
+
+# Run migrations and start server
+CMD alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000
+`,
+            frontendCore: `
+# frontend/package.json
+{
+  "name": "devaai-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "14.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "axios": "^1.6.5",
+    "zustand": "^4.5.0",
+    "react-hook-form": "^7.49.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "autoprefixer": "^10.0.1",
+    "postcss": "^8",
+    "tailwindcss": "^3.3.0",
+    "typescript": "^5"
+  }
+}
+
+# frontend/next.config.js
+/** @type {import('next').NextConfig} */
+const withPWA = require('next-pwa')({
+  dest: 'public',
+  register: true,
+  skipWaiting: true,
+  disable: process.env.NODE_ENV === 'development'
+})
+
+const nextConfig = {
+  reactStrictMode: true,
+  swcMinify: true,
+}
+
+module.exports = withPWA(nextConfig)
+
+# frontend/tailwind.config.ts
+import type { Config } from 'tailwindcss'
+
+const config: Config = {
+  content: [
+    './pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/**/*.{js,ts,jsx,tsx,mdx}',
+    './app/**/*.{js,ts,jsx,tsx,mdx}',
+  ],
+  theme: {
+    extend: {
+      colors: {
+        primary: '#FF6B35',
+        secondary: '#004E89',
+        accent: '#FFB703',
+      },
+    },
+  },
+  plugins: [],
+}
+export default config
+
+# frontend/app/layout.tsx
+import './globals.css'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'DevaAI - Karnataka Spiritual Companion',
+  description: 'Your daily spiritual companion for Kannada families',
+  manifest: '/manifest.json',
+  themeColor: '#FF6B35',
+  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
+}
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="kn">
+      <body>{children}</body>
+    </html>
+  )
+}
+
+# frontend/lib/api.ts
+import axios from 'axios'
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
+
+export const api = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+})
+
+// Add token to requests
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token')
+  if (token) {
+    config.headers.Authorization = \`Bearer \${token}\`
+  }
+  return config
+})
+
+// Auth APIs
+export const authAPI = {
+  register: (data: any) => api.post('/auth/register', data),
+  login: (data: any) => api.post('/auth/login', data),
+}
+
+// Dashboard APIs
+export const dashboardAPI = {
+  getDailySummary: () => api.get('/dashboard/daily-summary'),
+}
+
+// Temple APIs
+export const templeAPI = {
+  getAll: (params?: any) => api.get('/temples', { params }),
+  getById: (id: string) => api.get(\`/temples/\${id}\`),
+  getShops: (templeId: string) => api.get(\`/temples/\${templeId}/shops\`),
+}
+
+// Chat API
+export const chatAPI = {
+  sendMessage: (question: string) => api.post('/chat', { question }),
+}
+
+// Payment API
+export const paymentAPI = {
+  createOrder: (data: any) => api.post('/payment/create-order', data),
+  verifyPayment: (data: any) => api.post('/payment/verify-payment', data),
+}
+`,
+            pwa: `
+# frontend/public/manifest.json
+{
+  "name": "DevaAI - Karnataka Spiritual Companion",
+  "short_name": "DevaAI",
+  "description": "Your daily spiritual companion for Kannada families",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#FF6B35",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
+
+# frontend/public/sw.js
+const CACHE_NAME = 'devaai-v1'
+const urlsToCache = [
+  '/',
+  '/home',
+  '/ask',
+  '/temples',
+  '/profile',
+  '/offline'
+]
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then((cache) => cache.addAll(urlsToCache))
+  )
+})
+
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    caches.match(event.request)
+      .then((response) => {
+        if (response) {
+          return response
+        }
+        return fetch(event.request).catch(() => {
+          return caches.match('/offline')
+        })
+      })
+  )
+})
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName)
+          }
+        })
+      )
+    })
+  )
+})
+`,
+            pages: `
+# frontend/app/(tabs)/home/page.tsx
+'use client'
+import { useEffect, useState } from 'react'
+import { dashboardAPI } from '@/lib/api'
+
+export default function HomePage() {
+  const [data, setData] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    loadDashboard()
+  }, [])
+
+  const loadDashboard = async () => {
+    try {
+      const response = await dashboardAPI.getDailySummary()
+      setData(response.data)
+    } catch (error) {
+      console.error('Failed to load dashboard', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) return <div className="p-4">Loading...</div>
+
+  return (
+    <div className="p-4 space-y-4">
+      <h1 className="text-2xl font-bold text-gray-800">{data?.greeting}</h1>
+      
+      {/* Panchanga Card */}
+      <div className="bg-white rounded-lg shadow p-4">
+        <h2 className="text-lg font-semibold mb-2">ಇಂದಿನ ಪಂಚಾಂಗ</h2>
+        <div className="space-y-1 text-sm">
+          <p>ತಿಥಿ: {data?.panchanga.tithi}</p>
+          <p>ನಕ್ಷತ್ರ: {data?.panchanga.nakshatra}</p>
+          <p>ಯೋಗ: {data?.panchanga.yoga}</p>
+        </div>
+      </div>
+
+      {/* Sloka Card */}
+      <div className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg shadow p-4">
+        <h2 className="text-lg font-semibold mb-2">ಇಂದಿನ ಶ್ಲೋಕ</h2>
+        <p className="text-sm italic mb-2">{data?.sloka.text}</p>
+        <p className="text-sm text-gray-600">{data?.sloka.meaning}</p>
+      </div>
+
+      {/* Temple Card */}
+      <div className="bg-white rounded-lg shadow p-4">
+        <h2 className="text-lg font-semibold mb-2">ಇಂದು ಭೇಟಿ ನೀಡಿ</h2>
+        <p className="font-medium">{data?.suggested_temple.name}</p>
+        <p className="text-sm text-gray-600">{data?.suggested_temple.deity}</p>
+      </div>
+    </div>
+  )
+}
+
+# frontend/app/(tabs)/ask/page.tsx
+'use client'
+import { useState } from 'react'
+import { chatAPI } from '@/lib/api'
+
+export default function AskPage() {
+  const [messages, setMessages] = useState<any[]>([])
+  const [input, setInput] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const sendMessage = async () => {
+    if (!input.trim()) return
+
+    const userMessage = { role: 'user', content: input }
+    setMessages([...messages, userMessage])
+    setInput('')
+    setLoading(true)
+
+    try {
+      const response = await chatAPI.sendMessage(input)
+      const aiMessage = { role: 'assistant', content: response.data.response }
+      setMessages(prev => [...prev, aiMessage])
+    } catch (error) {
+      console.error('Failed to send message', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="flex flex-col h-screen">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {messages.map((msg, idx) => (
+          <div
+            key={idx}
+            className={\`flex \${msg.role === 'user' ? 'justify-end' : 'justify-start'}\`}
+          >
+            <div
+              className={\`max-w-[80%] rounded-lg p-3 \${
+                msg.role === 'user'
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-200 text-gray-800'
+              }\`}
+            >
+              {msg.content}
+            </div>
+          </div>
+        ))}
+        {loading && <div className="text-center text-gray-500">Typing...</div>}
+      </div>
+
+      <div className="p-4 bg-white border-t">
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+            placeholder="ನಿಮ್ಮ ಪ್ರಶ್ನೆ ಕೇಳಿ..."
+            className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2"
+          />
+          <button
+            onClick={sendMessage}
+            disabled={loading}
+            className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50"
+          >
+            ಕಳುಹಿಸಿ
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+# frontend/components/layout/BottomNav.tsx
+'use client'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+
+const tabs = [
+  { name: 'ಮುಖಪುಟ', path: '/home', icon: '🏠' },
+  { name: 'ಕೇಳಿ', path: '/ask', icon: '💬' },
+  { name: 'ದೇವಾಲಯಗಳು', path: '/temples', icon: '🛕' },
+  { name: 'ಪ್ರೊಫೈಲ್', path: '/profile', icon: '👤' },
+]
+
+export default function BottomNav() {
+  const pathname = usePathname()
+
+  return (
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200">
+      <div className="flex justify-around items-center h-16">
+        {tabs.map((tab) => (
+          <Link
+            key={tab.path}
+            href={tab.path}
+            className={\`flex flex-col items-center justify-center w-full h-full \${
+              pathname === tab.path ? 'text-blue-600' : 'text-gray-500'
+            }\`}
+          >
+            <span className="text-2xl">{tab.icon}</span>
+            <span className="text-xs mt-1">{tab.name}</span>
+          </Link>
+        ))}
+      </div>
+    </nav>
+  )
+}
+`,
+            admin: `
+# frontend/app/admin/page.tsx
+'use client'
+import { useState } from 'react'
+
+export default function AdminDashboard() {
+  const [activeTab, setActiveTab] = useState('temples')
+
+  return (
+    <div className="min-h-screen bg-gray-100">
+      <header className="bg-white shadow">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <h1 className="text-2xl font-bold">DevaAI Admin Dashboard</h1>
+        </div>
+      </header>
+
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        <div className="flex gap-4 mb-6">
+          <button
+            onClick={() => setActiveTab('temples')}
+            className={\`px-4 py-2 rounded \${
+              activeTab === 'temples' ? 'bg-blue-500 text-white' : 'bg-white'
+            }\`}
+          >
+            Temples
+          </button>
+          <button
+            onClick={() => setActiveTab('businesses')}
+            className={\`px-4 py-2 rounded \${
+              activeTab === 'businesses' ? 'bg-blue-500 text-white' : 'bg-white'
+            }\`}
+          >
+            Businesses
+          </button>
+          <button
+            onClick={() => setActiveTab('festivals')}
+            className={\`px-4 py-2 rounded \${
+              activeTab === 'festivals' ? 'bg-blue-500 text-white' : 'bg-white'
+            }\`}
+          >
+            Festivals
+          </button>
+          <button
+            onClick={() => setActiveTab('slokas')}
+            className={\`px-4 py-2 rounded \${
+              activeTab === 'slokas' ? 'bg-blue-500 text-white' : 'bg-white'
+            }\`}
+          >
+            Slokas
+          </button>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
+          {activeTab === 'temples' && <TempleManagement />}
+          {activeTab === 'businesses' && <BusinessManagement />}
+          {activeTab === 'festivals' && <FestivalManagement />}
+          {activeTab === 'slokas' && <SlokaManagement />}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function TempleManagement() {
+  return (
+    <div>
+      <h2 className="text-xl font-bold mb-4">Temple Management</h2>
+      <button className="mb-4 px-4 py-2 bg-green-500 text-white rounded">
+        + Add New Temple
+      </button>
+      <table className="w-full">
+        <thead>
+          <tr className="border-b">
+            <th className="text-left p-2">Name</th>
+            <th className="text-left p-2">District</th>
+            <th className="text-left p-2">Deity</th>
+            <th className="text-left p-2">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr className="border-b">
+            <td className="p-2">Example Temple</td>
+            <td className="p-2">Mysuru</td>
+            <td className="p-2">Chamundeshwari</td>
+            <td className="p-2">
+              <button className="text-blue-500 mr-2">Edit</button>
+              <button className="text-red-500">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+function BusinessManagement() {
+  return <div><h2 className="text-xl font-bold">Business Listings</h2></div>
+}
+
+function FestivalManagement() {
+  return <div><h2 className="text-xl font-bold">Festivals</h2></div>
+}
+
+function SlokaManagement() {
+  return <div><h2 className="text-xl font-bold">Slokas</h2></div>
+}
+`,
+            docs: `
+# docs/setup.md
+
+# DevaAI Setup Guide
+
+## Prerequisites
+- Python 3.11+
+- Node.js 18+
+- PostgreSQL 15+
+- Git
+
+## Backend Setup
+
+1. **Clone repository**
+\`\`\`bash
+git clone https://github.com/yourusername/devaai-platform.git
+cd devaai-platform/backend
+\`\`\`
+
+2. **Create virtual environment**
+\`\`\`bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\\Scripts\\activate
+\`\`\`
+
+3. **Install dependencies**
+\`\`\`bash
+pip install -r requirements.txt
+\`\`\`
+
+4. **Setup environment variables**
+\`\`\`bash
+cp .env.example .env
+# Edit .env with your actual values
+\`\`\`
+
+5. **Run migrations**
+\`\`\`bash
+alembic upgrade head
+\`\`\`
+
+6. **Start server**
+\`\`\`bash
+uvicorn app.main:app --reload --port 8000
+\`\`\`
+
+## Frontend Setup
+
+1. **Navigate to frontend**
+\`\`\`bash
+cd ../frontend
+\`\`\`
+
+2. **Install dependencies**
+\`\`\`bash
+npm install
+\`\`\`
+
+3. **Setup environment**
+\`\`\`bash
+cp .env.local.example .env.local
+# Edit .env.local with your values
+\`\`\`
+
+4. **Run development server**
+\`\`\`bash
+npm run dev
+\`\`\`
+
+## Database Setup (Supabase)
+
+1. Create Supabase project at https://supabase.com
+2. Copy SQL schema from \`backend/schema.sql\`
+3. Run in Supabase SQL Editor
+4. Get connection string from Settings > Database
+5. Update DATABASE_URL in backend .env
+
+## Production Deployment
+
+### Backend (Render)
+1. Create new Web Service on Render
+2. Connect GitHub repository
+3. Build Command: \`pip install -r requirements.txt\`
+4. Start Command: \`uvicorn app.main:app --host 0.0.0.0 --port $PORT\`
+5. Add environment variables from .env
+
+### Frontend (Vercel)
+1. Import project to Vercel
+2. Framework: Next.js
+3. Add environment variables
+4. Deploy
+
+## Testing
+\`\`\`bash
+# Backend tests
+cd backend
+pytest
+
+# Frontend tests
+cd frontend
+npm test
+\`\`\`
+
+---
+
+# docs/deployment.md
+
+# Production Deployment Checklist
+
+## Pre-Deployment
+- [ ] All tests passing
+- [ ] Environment variables configured
+- [ ] Database migrations tested
+- [ ] API documentation updated
+- [ ] Security audit completed
+
+## Backend Deployment (Render)
+- [ ] Create PostgreSQL instance
+- [ ] Deploy backend service
+- [ ] Configure environment variables
+- [ ] Run database migrations
+- [ ] Test API endpoints
+- [ ] Setup monitoring
+
+## Frontend Deployment (Vercel)
+- [ ] Build locally to verify
+- [ ] Configure environment variables
+- [ ] Deploy to Vercel
+- [ ] Verify PWA functionality
+- [ ] Test payment integration
+
+## Post-Deployment
+- [ ] Test complete user flow
+- [ ] Monitor error logs
+- [ ] Check performance metrics
+- [ ] Verify SSL certificates
+- [ ] Test mobile responsiveness
+
+## Monitoring
+- Setup Sentry for error tracking
+- Configure uptime monitoring
+- Setup database backups
+- Monitor API rate limits
+`
+        };
+
+        function displayOutput(title, content) {
+            const outputArea = document.getElementById('outputArea');
+            const actionButtons = document.getElementById('actionButtons');
+            
+            outputArea.innerHTML = `
+                <div class="status loading">⏳ Generating ${title}...</div>
+                <pre>${content}</pre>
+            `;
+            outputArea.classList.add('active');
+            
+            setTimeout(() => {
+                outputArea.querySelector('.status').className = 'status success';
+                outputArea.querySelector('.status').textContent = `✓ ${title} Generated Successfully`;
+                actionButtons.style.display = 'flex';
+            }, 500);
+        }
+
+        function generateStructure() {
+            displayOutput('Project Structure', codeSnippets.structure);
+        }
+
+        function generateSchema() {
+            displayOutput('SQL Schema', codeSnippets.schema);
+        }
+
+        function generateModels() {
+            displayOutput('SQLAlchemy Models', codeSnippets.models);
+        }
+
+        function generateBackendCore() {
+            displayOutput('FastAPI Core Setup', codeSnippets.backendCore);
+        }
+
+        function generateAuth() {
+            displayOutput('Authentication Module', codeSnippets.auth);
+        }
+
+        function generateAIService() {
+            displayOutput('AI Service', codeSnippets.aiService);
+        }
+
+        function generatePayment() {
+            displayOutput('Payment Module', codeSnippets.payment);
+        }
+
+        function generateAPIs() {
+            displayOutput('API Routes', codeSnippets.apis);
+        }
+
+        function generateEnvFiles() {
+            displayOutput('Environment Files', codeSnippets.envFiles);
+        }
+
+        function generateDockerfile() {
+            displayOutput('Dockerfile', codeSnippets.dockerfile);
+        }
+
+        function generateFrontendCore() {
+            displayOutput('Next.js Setup', codeSnippets.frontendCore);
+        }
+
+        function generatePWA() {
+            displayOutput('PWA Configuration', codeSnippets.pwa);
+        }
+
+        function generatePages() {
+            displayOutput('Frontend Pages', codeSnippets.pages);
+        }
+
+        function generateAdmin() {
+            displayOutput('Admin Dashboard', codeSnippets.admin);
+        }
+
+        function generateDocs() {
+            displayOutput('Documentation', codeSnippets.docs);
+        }
+
+        function copyOutput() {
+            const outputArea = document.getElementById('outputArea');
+            const text = outputArea.querySelector('pre').textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const notification = document.getElementById('copyNotification');
+                notification.classList.add('show');
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 2000);
+            });
+        }
+
+        function downloadOutput() {
+            const outputArea = document.getElementById('outputArea');
+            const text = outputArea.querySelector('pre').textContent;
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'devaai-code.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function clearOutput() {
+            const outputArea = document.getElementById('outputArea');
+            const actionButtons = document.getElementById('actionButtons');
+            outputArea.classList.remove('active');
+            actionButtons.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
+

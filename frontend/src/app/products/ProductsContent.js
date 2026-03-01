@@ -38,6 +38,7 @@ export default function ProductsContent() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [addingId, setAddingId] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedSubcategory, setSelectedSubcategory] = useState("all");
 
@@ -62,7 +63,7 @@ export default function ProductsContent() {
     const fetchData = async () => {
       try {
         const [productsRes, categoriesRes] = await Promise.all([
-          axios.get(`${apiUrl}/api/products?limit=100`),
+          axios.get(`${apiUrl}/api/products?limit=500`),
           axios.get(`${apiUrl}/api/categories`)
         ]);
 
@@ -108,6 +109,53 @@ export default function ProductsContent() {
 
   if (loading)
     return <div className="p-8 text-center">Loading products...</div>;
+
+  const addToCart = async (product) => {
+    const token = localStorage.getItem("token");
+    const user = JSON.parse(localStorage.getItem("user") || "null");
+
+    if (user?.role === "admin") {
+      alert("Admin account cannot add items to cart.");
+      return;
+    }
+
+    setAddingId(product._id);
+    try {
+      if (token) {
+        await axios.post(
+          `${apiUrl}/api/cart/items`,
+          { productId: product._id, quantity: 1 },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      } else {
+        const current = JSON.parse(localStorage.getItem("cart") || "[]");
+        const idx = current.findIndex((item) => item._id === product._id);
+
+        if (idx > -1) {
+          current[idx].qty += 1;
+        } else {
+          current.push({
+            _id: product._id,
+            name: product.name,
+            price: product.price,
+            qty: 1,
+            images: product.images || []
+          });
+        }
+
+        localStorage.setItem("cart", JSON.stringify(current));
+      }
+
+      window.dispatchEvent(new Event("storage"));
+      alert("Added to cart");
+    } catch (error) {
+      const message =
+        error?.response?.data?.message || "Unable to add item to cart";
+      alert(message);
+    } finally {
+      setAddingId(null);
+    }
+  };
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 md:py-8">
@@ -167,6 +215,14 @@ export default function ProductsContent() {
                   <span className="text-lg font-bold text-emerald-700 mt-auto">
                     {formatINR(product.price)}
                   </span>
+
+                  <button
+                    onClick={() => addToCart(product)}
+                    disabled={addingId === product._id}
+                    className="mt-3 rounded-lg bg-emerald-600 text-white py-2 text-sm font-semibold hover:bg-emerald-700 disabled:bg-emerald-300"
+                  >
+                    {addingId === product._id ? "Adding..." : "Add to Cart"}
+                  </button>
                 </div>
               </div>
             ))}
