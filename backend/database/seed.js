@@ -123,50 +123,124 @@ const buildProducts = () => {
   return products;
 };
 
-const seedDatabase = async () => {
+const upsertCategories = async () => {
+  const ops = categorySeed.map((category) => ({
+    updateOne: {
+      filter: { name: category.name },
+      update: { $setOnInsert: category },
+      upsert: true
+    }
+  }));
+
+  await Category.bulkWrite(ops);
+  const categories = await Category.find({ name: { $in: categorySeed.map((c) => c.name) } });
+  const categoryMap = categories.reduce((acc, cat) => {
+    acc[cat.name] = cat._id;
+    return acc;
+  }, {});
+  return { categories, categoryMap };
+};
+
+const seedDatabase = async (options = {}) => {
+  const {
+    connect = true,
+    wipeExisting = true,
+    onlyIfEmpty = false,
+    exitOnFinish = true
+  } = options;
+
+  let completed = false;
   try {
-    await connectDatabase();
+    if (connect) {
+      await connectDatabase();
+    }
+
+    const [productCount, categoryCount] = await Promise.all([
+      Product.countDocuments({}),
+      Category.countDocuments({})
+    ]);
+
+    if (onlyIfEmpty && (productCount > 0 || categoryCount > 0)) {
+      console.log(`Skipping seed: existing data found (products=${productCount}, categories=${categoryCount}).`);
+      return { skipped: true, products: productCount, categories: categoryCount };
+    }
 
     const admin = await ensureAdmin();
 
-    console.log('Clearing existing products and categories...');
-    await Product.deleteMany({});
-    await Category.deleteMany({});
+    if (wipeExisting) {
+      console.log('Clearing existing products and categories...');
+      await Product.deleteMany({});
+      await Category.deleteMany({});
+    }
 
-    console.log('Creating categories...');
-    const createdCategories = await Category.insertMany(categorySeed);
-    const categoryMap = createdCategories.reduce((acc, cat) => {
-      acc[cat.name] = cat._id;
-      return acc;
-    }, {});
+    console.log('Creating/updating categories...');
+    const { categories, categoryMap } = await upsertCategories();
 
     const productSeed = buildProducts();
+    const productsToInsert = productSeed
+      .filter((product) => categoryMap[product.categoryName])
+      .map((product) => ({
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        stock: product.stock,
+        category: categoryMap[product.categoryName],
+        images: product.images,
+        featured: product.featured,
+        isActive: product.isActive,
+        createdBy: admin._id
+      }));
 
     console.log('Seeding products...');
-    const productsToInsert = productSeed.map((product) => ({
-      name: product.name,
-      description: product.description,
-      price: product.price,
-      stock: product.stock,
-      category: categoryMap[product.categoryName],
-      images: product.images,
-      featured: product.featured,
-      isActive: product.isActive,
-      createdBy: admin._id
-    }));
+    if (wipeExisting) {
+      await Product.insertMany(productsToInsert);
+    } else {
+      await Product.bulkWrite(
+        productsToInsert.map((product) => ({
+          updateOne: {
+            filter: { name: product.name },
+            update: { $setOnInsert: product },
+            upsert: true
+          }
+        }))
+      );
+    }
 
-    const createdProducts = await Product.insertMany(productsToInsert);
+    const finalProductCount = await Product.countDocuments({});
+    const finalCategoryCount = await Category.countDocuments({});
 
-    console.log('Database seeded successfully.');
+    console.log('Database seed completed.');
     console.log(`Admin: ${admin.email}`);
-    console.log(`Categories: ${createdCategories.length}`);
-    console.log(`Products: ${createdProducts.length}`);
+    console.log(`Categories: ${finalCategoryCount}`);
+    console.log(`Products: ${finalProductCount}`);
 
-    process.exit(0);
+    completed = true;
+    return {
+      skipped: false,
+      admin: admin.email,
+      categories: finalCategoryCount,
+      products: finalProductCount
+    };
   } catch (error) {
     console.error('Error seeding database:', error);
-    process.exit(1);
+    if (exitOnFinish) {
+      process.exit(1);
+    }
+    throw error;
+  } finally {
+    if (exitOnFinish) {
+      process.exit(completed ? 0 : 1);
+    }
   }
 };
 
-seedDatabase();
+if (require.main === module) {
+  seedDatabase({
+    connect: true,
+    wipeExisting: true,
+    onlyIfEmpty: false,
+    exitOnFinish: true
+  });
+}
+
+module.exports = { seedDatabase };

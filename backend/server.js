@@ -1,15 +1,12 @@
-﻿const express = require("express");
+const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const connectDatabase = require("./config/database");
+const { seedDatabase } = require("./database/seed");
 
 dotenv.config();
 
 const app = express();
-
-// Connect MongoDB
-connectDatabase();
-
 
 // ===============================
 // CORS CONFIGURATION
@@ -23,15 +20,14 @@ console.log("Allowed Origins:", allowedOrigins);
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-
+    origin(origin, callback) {
       if (!origin) return callback(null, true);
 
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
 
-      if (/\.vercel\.app$/.test(origin)) {
+      if (/\.vercel\.app$/i.test(origin)) {
         return callback(null, true);
       }
 
@@ -39,17 +35,15 @@ app.use(
       return callback(new Error("Not allowed by CORS"));
     },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    credentials: true,
+    credentials: true
   })
 );
-
 
 // ===============================
 // MIDDLEWARE
 // ===============================
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 
 // ===============================
 // ROUTES
@@ -63,7 +57,6 @@ app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/orders", require("./routes/orderRoutes"));
 app.use("/api/payments", require("./routes/paymentRoutes"));
 
-
 // ===============================
 // HEALTH CHECK
 // ===============================
@@ -71,10 +64,9 @@ app.get("/api/health", (req, res) => {
   res.json({
     status: "Server is running",
     environment: process.env.NODE_ENV,
-    time: new Date(),
+    time: new Date()
   });
 });
-
 
 // ===============================
 // ERROR HANDLER
@@ -83,16 +75,35 @@ app.use((err, req, res, next) => {
   console.error(err.message);
   res.status(500).json({
     success: false,
-    message: err.message || "Server error",
+    message: err.message || "Server error"
   });
 });
-
 
 // ===============================
 // START SERVER
 // ===============================
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+const startServer = async () => {
+  try {
+    await connectDatabase();
+
+    if (String(process.env.AUTO_SEED_ON_DEPLOY || "false").toLowerCase() === "true") {
+      await seedDatabase({
+        connect: false,
+        wipeExisting: false,
+        onlyIfEmpty: true,
+        exitOnFinish: false
+      });
+    }
+
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error("Startup failed:", error.message);
+    process.exit(1);
+  }
+};
+
+startServer();
