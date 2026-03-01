@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 const Product = require('../models/Product');
 const Category = require('../models/Category');
 const User = require('../models/User');
+const SeedState = require('../models/SeedState');
 const connectDatabase = require('../config/database');
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
@@ -76,6 +77,15 @@ const basePriceByCategory = {
   'Organic Superfoods': 220
 };
 
+const SEED_STATE_KEY = 'bootstrap_v1';
+
+const getDeployCommit = () =>
+  process.env.RENDER_GIT_COMMIT ||
+  process.env.RAILWAY_GIT_COMMIT_SHA ||
+  process.env.VERCEL_GIT_COMMIT_SHA ||
+  process.env.GIT_COMMIT_SHA ||
+  'local-dev';
+
 const ensureAdmin = async () => {
   let admin = await User.findOne({ email: adminUser.email });
 
@@ -146,6 +156,7 @@ const seedDatabase = async (options = {}) => {
     connect = true,
     wipeExisting = true,
     onlyIfEmpty = false,
+    onlyIfNeverSeeded = false,
     exitOnFinish = true
   } = options;
 
@@ -155,14 +166,34 @@ const seedDatabase = async (options = {}) => {
       await connectDatabase();
     }
 
-    const [productCount, categoryCount] = await Promise.all([
+    const deployCommit = getDeployCommit();
+    const [productCount, categoryCount, seedState] = await Promise.all([
       Product.countDocuments({}),
-      Category.countDocuments({})
+      Category.countDocuments({}),
+      SeedState.findOne({ key: SEED_STATE_KEY })
     ]);
 
+    console.log(`[seed] deploy commit: ${deployCommit}`);
+    if (seedState?.seeded) {
+      console.log(`[seed] state found: seeded=true at ${seedState.seededAt?.toISOString?.() || seedState.seededAt} by ${seedState.seededByCommit || 'unknown'}`);
+    } else {
+      console.log('[seed] state found: seeded=false');
+    }
+
+    if (onlyIfNeverSeeded && seedState?.seeded) {
+      console.log(`[seed] skipping: already seeded once (commit=${seedState.seededByCommit || 'unknown'})`);
+      return {
+        skipped: true,
+        reason: 'already_seeded',
+        products: productCount,
+        categories: categoryCount,
+        seededByCommit: seedState.seededByCommit || null
+      };
+    }
+
     if (onlyIfEmpty && (productCount > 0 || categoryCount > 0)) {
-      console.log(`Skipping seed: existing data found (products=${productCount}, categories=${categoryCount}).`);
-      return { skipped: true, products: productCount, categories: categoryCount };
+      console.log(`[seed] skipping: existing data found (products=${productCount}, categories=${categoryCount}).`);
+      return { skipped: true, reason: 'data_not_empty', products: productCount, categories: categoryCount };
     }
 
     const admin = await ensureAdmin();
@@ -209,17 +240,32 @@ const seedDatabase = async (options = {}) => {
     const finalProductCount = await Product.countDocuments({});
     const finalCategoryCount = await Category.countDocuments({});
 
-    console.log('Database seed completed.');
-    console.log(`Admin: ${admin.email}`);
-    console.log(`Categories: ${finalCategoryCount}`);
-    console.log(`Products: ${finalProductCount}`);
+    await SeedState.findOneAndUpdate(
+      { key: SEED_STATE_KEY },
+      {
+        $set: {
+          seeded: true,
+          seededAt: new Date(),
+          seededByCommit: deployCommit,
+          note: wipeExisting ? 'manual_full_seed' : 'startup_safe_seed'
+        }
+      },
+      { upsert: true, new: true }
+    );
+
+    console.log('[seed] database seed completed.');
+    console.log(`[seed] admin: ${admin.email}`);
+    console.log(`[seed] categories: ${finalCategoryCount}`);
+    console.log(`[seed] products: ${finalProductCount}`);
+    console.log(`[seed] marked seeded in SeedState with commit=${deployCommit}`);
 
     completed = true;
     return {
       skipped: false,
       admin: admin.email,
       categories: finalCategoryCount,
-      products: finalProductCount
+      products: finalProductCount,
+      seededByCommit: deployCommit
     };
   } catch (error) {
     console.error('Error seeding database:', error);

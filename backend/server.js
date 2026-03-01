@@ -89,12 +89,22 @@ const startServer = async () => {
     await connectDatabase();
 
     if (String(process.env.AUTO_SEED_ON_DEPLOY || "false").toLowerCase() === "true") {
-      await seedDatabase({
+      console.log("[startup] AUTO_SEED_ON_DEPLOY=true, checking seed state...");
+      const seedResult = await seedDatabase({
         connect: false,
         wipeExisting: false,
-        onlyIfEmpty: true,
+        onlyIfEmpty: false,
+        onlyIfNeverSeeded: true,
         exitOnFinish: false
       });
+
+      if (seedResult?.skipped) {
+        console.log(`[startup] seed skipped (${seedResult.reason || "unknown"}).`);
+      } else {
+        console.log(`[startup] seed executed successfully (commit=${seedResult?.seededByCommit || "unknown"}).`);
+      }
+    } else {
+      console.log("[startup] AUTO_SEED_ON_DEPLOY=false, skipping auto-seed check.");
     }
 
     app.listen(PORT, () => {
