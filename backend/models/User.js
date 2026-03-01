@@ -35,6 +35,10 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  isEmailVerified: {
+    type: Boolean,
+    default: false
+  },
   avatar: {
     type: String,
     default: 'https://ui-avatars.com/api/?name=User'
@@ -70,6 +74,10 @@ const userSchema = new mongoose.Schema({
       default: false
     }
   }],
+  emailVerificationOtp: String,
+  emailVerificationOtpExpire: Date,
+  forgotPasswordOtp: String,
+  forgotPasswordOtpExpire: Date,
   resetPasswordToken: String,
   resetPasswordExpire: Date,
   createdAt: {

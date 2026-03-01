@@ -12,7 +12,8 @@ const adminUser = {
   email: process.env.ADMIN_EMAIL || 'admin@shopease.com',
   password: process.env.ADMIN_PASSWORD || 'admin123',
   phone: process.env.ADMIN_PHONE || '9876543210',
-  role: 'admin'
+  role: 'admin',
+  isEmailVerified: true
 };
 
 const categorySeed = [
@@ -87,6 +88,7 @@ const ensureAdmin = async () => {
   admin.name = adminUser.name;
   admin.phone = adminUser.phone;
   admin.role = 'admin';
+  admin.isEmailVerified = true;
   admin.password = adminUser.password;
   await admin.save();
 
