@@ -5,8 +5,21 @@ const User = require('../models/User');
 
 const OTP_EXP_MINUTES = Number(process.env.OTP_EXPIRE_MINUTES || 10);
 
+const resolveJwtExpire = () => {
+  const raw = String(process.env.JWT_EXPIRE || '').trim();
+  if (!raw) return '7d';
+
+  // Accept common jsonwebtoken formats: "7d", "12h", "3600", etc.
+  if (/^\d+$/.test(raw) || /^\d+\s*[smhdwy]$/i.test(raw)) {
+    return raw.replace(/\s+/g, '');
+  }
+
+  console.warn(`[auth] Invalid JWT_EXPIRE value "${raw}", falling back to 7d`);
+  return '7d';
+};
+
 const generateToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, {
-  expiresIn: process.env.JWT_EXPIRE
+  expiresIn: resolveJwtExpire()
 });
 
 const safeUserPayload = (user) => ({
