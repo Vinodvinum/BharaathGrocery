@@ -3,20 +3,12 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const connectDatabase = require("./config/database");
 
-// ✅ ADD THIS LINE (import your seed file)
-const seedDatabase = require("./config/seed");  
-
 dotenv.config();
 
 const app = express();
 
 // Connect MongoDB
 connectDatabase();
-
-// ✅ ADD THIS BLOCK HERE (after database connection)
-if (process.env.SEED === "true") {
-  seedDatabase();
-}
 
 
 // ===============================
