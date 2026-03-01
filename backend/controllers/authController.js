@@ -46,6 +46,9 @@ const createTransporter = () => {
   const pass = process.env.SMTP_PASS;
   const secureRaw = String(process.env.SMTP_SECURE || '').trim().toLowerCase();
   const secure = secureRaw === 'true' || secureRaw === '1' || secureRaw === 'ssl';
+  const connectionTimeout = Number(process.env.SMTP_CONNECTION_TIMEOUT_MS || 10000);
+  const greetingTimeout = Number(process.env.SMTP_GREETING_TIMEOUT_MS || 10000);
+  const socketTimeout = Number(process.env.SMTP_SOCKET_TIMEOUT_MS || 20000);
 
   if (!host || !user || !pass) return null;
 
@@ -53,7 +56,10 @@ const createTransporter = () => {
     host,
     port,
     secure,
-    auth: { user, pass }
+    auth: { user, pass },
+    connectionTimeout,
+    greetingTimeout,
+    socketTimeout
   });
 };
 
@@ -79,8 +85,13 @@ const sendOtpEmail = async ({ to, purpose, otp }) => {
     return { delivered: false };
   }
 
-  await transporter.sendMail({ from, to, subject, html });
-  return { delivered: true };
+  try {
+    await transporter.sendMail({ from, to, subject, html });
+    return { delivered: true };
+  } catch (error) {
+    console.error(`[mail] OTP email failed for ${to}: ${error.message}`);
+    return { delivered: false };
+  }
 };
 
 const sendOtpResponse = (res, { message, otp, delivered }) => {
