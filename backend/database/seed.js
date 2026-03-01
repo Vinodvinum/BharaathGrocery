@@ -8,10 +8,10 @@ const connectDatabase = require('../config/database');
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const adminUser = {
-  name: 'Admin User',
-  email: 'admin@shopease.com',
-  password: 'admin123',
-  phone: '9876543210',
+  name: process.env.ADMIN_NAME || 'Admin User',
+  email: process.env.ADMIN_EMAIL || 'admin@shopease.com',
+  password: process.env.ADMIN_PASSWORD || 'admin123',
+  phone: process.env.ADMIN_PHONE || '9876543210',
   role: 'admin'
 };
 
@@ -80,7 +80,7 @@ const ensureAdmin = async () => {
 
   if (!admin) {
     admin = await User.create(adminUser);
-    console.log(`Admin created: ${admin.email} / password: admin123`);
+    console.log(`Admin created: ${admin.email} / password: ${adminUser.password}`);
     return admin;
   }
 
@@ -90,7 +90,7 @@ const ensureAdmin = async () => {
   admin.password = adminUser.password;
   await admin.save();
 
-  console.log(`Admin updated: ${admin.email} / password reset to: admin123`);
+  console.log(`Admin updated: ${admin.email} / password reset to: ${adminUser.password}`);
   return admin;
 };
 

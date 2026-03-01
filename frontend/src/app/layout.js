@@ -7,11 +7,18 @@ import { usePathname, useRouter } from "next/navigation";
 
 const CATEGORY_FALLBACK = [
   { _id: "all", name: "All" },
+  { _id: "rice-grains", name: "Rice & Grains" },
   { _id: "vegetables", name: "Vegetables" },
   { _id: "fruits", name: "Fruits" },
   { _id: "dairy", name: "Dairy" },
-  { _id: "bakery", name: "Bakery" },
-  { _id: "beverages", name: "Beverages" }
+  { _id: "pulses-lentils", name: "Pulses & Lentils" },
+  { _id: "beverages", name: "Beverages" },
+  { _id: "organic-vegetables", name: "Organic Vegetables" },
+  { _id: "organic-fruits", name: "Organic Fruits" },
+  { _id: "organic-dairy", name: "Organic Dairy" },
+  { _id: "organic-staples", name: "Organic Staples" },
+  { _id: "organic-breakfast", name: "Organic Breakfast" },
+  { _id: "organic-superfoods", name: "Organic Superfoods" }
 ];
 const QUICK_SUBCATEGORY_LINKS = [
   /*{ key: "dal_pulses", label: "Dal & Pulses", href: "/products?sub=dal_pulses" },
