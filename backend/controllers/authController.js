@@ -82,22 +82,26 @@ const sendOtpEmail = async ({ to, purpose, otp }) => {
   `;
 
   if (!transporter) {
-    return { delivered: false };
+    return { delivered: false, reason: 'smtp_not_configured' };
   }
 
   try {
     await transporter.sendMail({ from, to, subject, html });
-    return { delivered: true };
+    return { delivered: true, reason: 'ok' };
   } catch (error) {
     console.error(`[mail] OTP email failed for ${to}: ${error.message}`);
-    return { delivered: false };
+    return { delivered: false, reason: error.message || 'smtp_send_failed' };
   }
 };
 
-const sendOtpResponse = (res, { message, otp, delivered }) => {
+const sendOtpResponse = (res, { message, otp, delivered, reason }) => {
   const response = {
     success: true,
-    message: delivered ? message : `${message} (email not configured; using dev OTP)`
+    message: delivered
+      ? message
+      : (reason === 'smtp_not_configured'
+        ? `${message} (SMTP not configured; using dev OTP)`
+        : `${message} (email delivery failed: ${reason}; using dev OTP)`)
   };
 
   if (!delivered || process.env.NODE_ENV !== 'production') {
@@ -159,11 +163,12 @@ exports.register = async (req, res) => {
       await user.save();
     }
 
-    const { delivered } = await sendOtpEmail({ to: email, purpose: 'signup', otp });
+    const { delivered, reason } = await sendOtpEmail({ to: email, purpose: 'signup', otp });
     return sendOtpResponse(res, {
       message: 'Verification OTP sent to your email',
       otp,
-      delivered
+      delivered,
+      reason
     });
   } catch (error) {
     return res.status(400).json({ success: false, message: error.message });
@@ -237,11 +242,12 @@ exports.resendEmailOtp = async (req, res) => {
     user.emailVerificationOtpExpire = Date.now() + (OTP_EXP_MINUTES * 60 * 1000);
     await user.save();
 
-    const { delivered } = await sendOtpEmail({ to: email, purpose: 'signup', otp });
+    const { delivered, reason } = await sendOtpEmail({ to: email, purpose: 'signup', otp });
     return sendOtpResponse(res, {
       message: 'Verification OTP resent successfully',
       otp,
-      delivered
+      delivered,
+      reason
     });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
@@ -403,11 +409,12 @@ exports.forgotPassword = async (req, res) => {
     user.forgotPasswordOtpExpire = Date.now() + (OTP_EXP_MINUTES * 60 * 1000);
     await user.save({ validateBeforeSave: false });
 
-    const { delivered } = await sendOtpEmail({ to: email, purpose: 'forgot', otp });
+    const { delivered, reason } = await sendOtpEmail({ to: email, purpose: 'forgot', otp });
     return sendOtpResponse(res, {
       message: 'Password reset OTP sent to your email',
       otp,
-      delivered
+      delivered,
+      reason
     });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
