@@ -27,6 +27,32 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [downloadingId, setDownloadingId] = useState("");
+
+  const downloadInvoice = async (orderId) => {
+    try {
+      setDownloadingId(orderId);
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${apiUrl}/api/orders/${orderId}/invoice`, {
+        headers: { Authorization: `Bearer ${token}` },
+        responseType: "blob"
+      });
+
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `invoice-${orderId}.pdf`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (e) {
+      alert(e.response?.data?.message || "Unable to download invoice");
+    } finally {
+      setDownloadingId("");
+    }
+  };
 
   useEffect(() => {
     const loadOrders = async () => {
@@ -94,6 +120,13 @@ export default function OrdersPage() {
               <div className="flex flex-wrap gap-2 mb-3 text-xs md:text-sm">
                 <span className="px-2.5 py-1 rounded-full bg-blue-100 text-blue-800">Status: <span className="capitalize">{order.status || "pending"}</span></span>
                 <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-700">Items: {order.items?.length || 0}</span>
+                <button
+                  onClick={() => downloadInvoice(order._id)}
+                  disabled={downloadingId === order._id}
+                  className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 disabled:opacity-60"
+                >
+                  {downloadingId === order._id ? "Preparing Invoice..." : "Download Invoice"}
+                </button>
               </div>
 
               <div className="space-y-2 border-t pt-3">

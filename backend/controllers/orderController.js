@@ -2,6 +2,8 @@ const Order = require('../models/Order');
 const mongoose = require('mongoose');
 const Product = require('../models/Product');
 const Cart = require('../models/Cart');
+const { sendMail } = require('../utils/mailer');
+const { generateInvoicePdfBuffer, getInvoiceFileName } = require('../utils/invoice');
 
 const ALLOWED_PAYMENT_METHODS = ['COD', 'RAZORPAY'];
 
@@ -41,6 +43,55 @@ const validateShippingAddress = (shippingAddress) => {
   }
 
   return null;
+};
+
+const buildEmailHtml = ({ heading, order, message }) => {
+  const orderDate = new Date(order.createdAt || Date.now()).toLocaleString('en-IN');
+  return `
+    <div style="font-family:Arial,sans-serif;max-width:620px;margin:0 auto;">
+      <h2>${heading}</h2>
+      <p>${message}</p>
+      <p><strong>Order ID:</strong> ${order._id}</p>
+      <p><strong>Date:</strong> ${orderDate}</p>
+      <p><strong>Payment:</strong> ${order.paymentMethod} (${order.paymentStatus})</p>
+      <p><strong>Total:</strong> INR ${Number(order.totalAmount || 0).toFixed(2)}</p>
+      <p>Invoice is attached in this email.</p>
+    </div>
+  `;
+};
+
+const sendOrderInvoiceEmail = async (order, type) => {
+  try {
+    const email = order?.user?.email;
+    if (!email) return;
+
+    const pdfBuffer = generateInvoicePdfBuffer(order);
+
+    let heading = 'Order Confirmation';
+    let message = 'Your order has been placed successfully.';
+    if (type === 'paid') {
+      heading = 'Payment Confirmation';
+      message = 'Your payment is confirmed. Please find your invoice attached.';
+    } else if (type === 'delivered') {
+      heading = 'Order Delivered';
+      message = 'Your order has been delivered. Please find your invoice attached.';
+    }
+
+    await sendMail({
+      to: email,
+      subject: `Bharat Basket - ${heading} (${String(order._id).slice(-8).toUpperCase()})`,
+      html: buildEmailHtml({ heading, order, message }),
+      attachments: [{
+        filename: getInvoiceFileName(order),
+        content: pdfBuffer,
+        contentType: 'application/pdf'
+      }]
+    });
+
+    console.log(`[mail] Invoice email sent (${type}) to ${email} for order ${order._id}`);
+  } catch (error) {
+    console.error(`[mail] Failed to send invoice email (${type}) for order ${order?._id}: ${error.message}`);
+  }
 };
 
 exports.createOrder = async (req, res) => {
@@ -145,6 +196,9 @@ exports.createOrder = async (req, res) => {
       .populate('user', 'name email')
       .populate('items.product', 'name images');
 
+    // Fire-and-forget mail: do not block order placement.
+    sendOrderInvoiceEmail(populatedOrder, 'placed');
+
     res.status(201).json({ success: true, order: populatedOrder });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
@@ -205,6 +259,9 @@ exports.updateOrder = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Order not found' });
     }
 
+    const previousStatus = order.status;
+    const previousPaymentStatus = order.paymentStatus;
+
     if (status) {
       order.status = status;
       order.statusHistory.push({ status, comment: `Updated by admin to ${status}` });
@@ -220,8 +277,41 @@ exports.updateOrder = async (req, res) => {
       .populate('user', 'name email')
       .populate('items.product', 'name');
 
+    if (previousPaymentStatus !== 'paid' && populatedOrder.paymentStatus === 'paid') {
+      sendOrderInvoiceEmail(populatedOrder, 'paid');
+    }
+
+    if (previousStatus !== 'delivered' && populatedOrder.status === 'delivered') {
+      sendOrderInvoiceEmail(populatedOrder, 'delivered');
+    }
+
     res.json({ success: true, message: 'Order updated successfully', order: populatedOrder });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+exports.downloadInvoice = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id)
+      .populate('user', 'name email')
+      .populate('items.product', 'name');
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    if (req.user.role !== 'admin' && order.user?._id?.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ success: false, message: 'Not authorized to download this invoice' });
+    }
+
+    const pdfBuffer = generateInvoicePdfBuffer(order);
+    const fileName = getInvoiceFileName(order);
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=\"${fileName}\"`);
+    return res.send(pdfBuffer);
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
   }
 };

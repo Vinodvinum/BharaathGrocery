@@ -44,7 +44,8 @@ const createTransporter = () => {
   const port = Number(process.env.SMTP_PORT || 587);
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASS;
-  const secure = String(process.env.SMTP_SECURE || 'false') === 'true';
+  const secureRaw = String(process.env.SMTP_SECURE || '').trim().toLowerCase();
+  const secure = secureRaw === 'true' || secureRaw === '1' || secureRaw === 'ssl';
 
   if (!host || !user || !pass) return null;
 
